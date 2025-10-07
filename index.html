@@ -2947,13 +2947,32 @@
             const balanceElement = document.getElementById('dashBalance');
             balanceElement.className = balance >= 0 ? 'metric-value positive' : 'metric-value negative';
 
-            // Budget usage
-            const monthBudget = budgets
+            // Budget usage - check Overall budget first, then sum all category budgets
+            const overallBudget = budgets
                 .filter(b => b.month === currentMonth && b.category === 'Overall')
                 .reduce((sum, b) => sum + (b.amount || 0), 0);
 
+            // If no Overall budget, sum all individual category budgets
+            const categoryBudgets = overallBudget === 0
+                ? budgets
+                    .filter(b => b.month === currentMonth && b.category !== 'Overall')
+                    .reduce((sum, b) => sum + (b.amount || 0), 0)
+                : 0;
+
+            const monthBudget = overallBudget > 0 ? overallBudget : categoryBudgets;
+
             const budgetUsed = monthBudget > 0 ? (expenses / monthBudget * 100) : 0;
             document.getElementById('dashBudgetUsed').textContent = `${budgetUsed.toFixed(1)}%`;
+
+            // Color code based on usage
+            const budgetUsedElement = document.getElementById('dashBudgetUsed');
+            if (budgetUsed >= 100) {
+                budgetUsedElement.style.color = '#dc3545'; // Red - over budget
+            } else if (budgetUsed >= 80) {
+                budgetUsedElement.style.color = '#ffc107'; // Yellow - warning
+            } else {
+                budgetUsedElement.style.color = '#28a745'; // Green - good
+            }
 
             // Active goals
             const activeGoals = savingsGoals.filter(g =>
