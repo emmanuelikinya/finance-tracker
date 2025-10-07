@@ -2382,12 +2382,26 @@
         // TRANSACTION FUNCTIONS
         // ============================================
 
-        // Income Form
-        document.getElementById('incomeForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            console.log('Income form submitted');
-            await addIncome();
-        });
+        // Income Form - Initialize with safety check
+        function initializeIncomeForm() {
+            const incomeForm = document.getElementById('incomeForm');
+            if (incomeForm) {
+                console.log('✅ Income form found, attaching event listener');
+                incomeForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    console.log('💰 Income form submitted');
+                    await addIncome();
+                });
+            } else {
+                console.error('❌ Income form not found in DOM');
+            }
+        }
+
+        // Try immediate initialization
+        initializeIncomeForm();
+
+        // Also try after a short delay to ensure DOM is ready
+        setTimeout(initializeIncomeForm, 100);
 
         async function addIncome() {
             console.log('addIncome called');
