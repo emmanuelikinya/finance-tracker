@@ -1315,7 +1315,8 @@
                                     <option value="yearly">Yearly</option>
                                 </select>
                             </div>
-                            <button type="submit" class="btn-success">Add Income</button>
+                            <button type="submit" class="btn-success" id="addIncomeBtn">Add Income</button>
+                            <div id="incomeFormStatus" style="margin-top: 10px; padding: 10px; border-radius: 5px; display: none;"></div>
                         </form>
                     </div>
 
@@ -2404,22 +2405,47 @@
         setTimeout(initializeIncomeForm, 100);
 
         async function addIncome() {
-            console.log('addIncome called');
+            console.log('🎯 addIncome called');
+
+            const statusDiv = document.getElementById('incomeFormStatus');
+            const submitBtn = document.getElementById('addIncomeBtn');
+
+            // Show status: Button clicked
+            statusDiv.style.display = 'block';
+            statusDiv.style.background = '#e3f2fd';
+            statusDiv.style.color = '#1976d2';
+            statusDiv.innerHTML = '⏳ Processing... Button clicked!';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
 
             // Validate required fields
             const category = document.getElementById('incomeCategory').value;
             const amount = document.getElementById('incomeAmount').value;
             const date = document.getElementById('incomeDate').value;
 
+            console.log('📝 Form values:', { category, amount, date });
+
             if (!category || !amount || !date) {
-                console.error('Missing required fields');
+                console.error('❌ Missing required fields');
+                statusDiv.style.background = '#fff3cd';
+                statusDiv.style.color = '#856404';
+                statusDiv.innerHTML = '⚠️ Please fill in all required fields!';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Add Income';
+
                 showNotification({
                     title: '⚠️ Validation Error',
                     message: 'Please fill in all required fields (category, amount, date).',
                     type: 'warning'
                 });
+
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 3000);
                 return;
             }
+
+            statusDiv.innerHTML = '⏳ Preparing data...';
 
             const transaction = {
                 type: 'income',
@@ -2432,16 +2458,24 @@
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
 
-            console.log('Transaction to add:', transaction);
+            console.log('📦 Transaction object:', transaction);
+            console.log('👤 Current User ID:', currentUser.uid);
 
             try {
-                console.log('Saving to Firestore...');
+                statusDiv.innerHTML = '☁️ Sending to Firebase...';
+                console.log('☁️ Attempting Firestore write...');
+                console.log('📍 Path: users/' + currentUser.uid + '/transactions');
+
                 const docRef = await db.collection('users')
                     .doc(currentUser.uid)
                     .collection('transactions')
                     .add(transaction);
 
-                console.log('Income added with ID:', docRef.id);
+                console.log('✅ SUCCESS! Income added with ID:', docRef.id);
+                statusDiv.style.background = '#d4edda';
+                statusDiv.style.color = '#155724';
+                statusDiv.innerHTML = `✅ SUCCESS! Saved to Firebase with ID: ${docRef.id}`;
+
                 transaction.id = docRef.id;
                 transactions.unshift(transaction);
 
@@ -2452,18 +2486,41 @@
 
                 showNotification({
                     title: '✅ Income Added',
-                    message: `Successfully added KSH ${transaction.amount.toFixed(2)} income.`,
+                    message: `Successfully added KSH ${transaction.amount.toFixed(2)} income to Firebase!`,
                     type: 'success'
                 });
+
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Add Income';
+
+                // Hide success message after 5 seconds
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+
             } catch (error) {
-                console.error('Error adding income:', error);
+                console.error('❌ FIRESTORE ERROR:', error);
                 console.error('Error code:', error.code);
                 console.error('Error message:', error.message);
+                console.error('Full error:', JSON.stringify(error, null, 2));
+
+                statusDiv.style.background = '#f8d7da';
+                statusDiv.style.color = '#721c24';
+                statusDiv.innerHTML = `❌ FAILED: ${error.code || 'Unknown error'}<br>${error.message}`;
+
                 showNotification({
                     title: '❌ Error',
                     message: `Failed to add income: ${error.message}`,
                     type: 'danger'
                 });
+
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Add Income';
+
+                // Keep error visible longer
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 10000);
             }
         }
 
