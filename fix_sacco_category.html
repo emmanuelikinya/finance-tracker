@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix SACCO Category - Data Migration</title>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #856404;
+        }
+
+        .warning strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .info {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #0c5460;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .output {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            display: none;
+        }
+
+        .output.success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+            display: block;
+        }
+
+        .output.error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+            display: block;
+        }
+
+        .output.info {
+            background: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+            display: block;
+        }
+
+        .login-section {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Fix SACCO Category</h1>
+        <p class="subtitle">Update "SACCO Savings" → "SACCO savings"</p>
+
+        <div class="warning">
+            <strong>⚠️ What This Tool Does:</strong>
+            This will update all your existing transactions and budgets that have
+            "SACCO Savings" (capital S) and change them to "SACCO savings" (lowercase s)
+            for consistency.
+        </div>
+
+        <div class="info">
+            <strong>📝 Why This Is Needed:</strong>
+            Firebase treats "SACCO Savings" and "SACCO savings" as two different categories.
+            This causes your category breakdown chart to show both, making it look like you
+            have duplicates. This tool fixes that by standardizing all old data.
+        </div>
+
+        <div class="login-section">
+            <h3>Step 1: Login</h3>
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" id="loginEmail" value="emmanueli@ryantelsystems.com" placeholder="your-email@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password:</label>
+                <input type="password" id="loginPassword" placeholder="Your password">
+            </div>
+            <button class="btn" onclick="loginUser()">🔑 Login</button>
+        </div>
+
+        <div id="fixSection" class="hidden">
+            <h3>Step 2: Fix Categories</h3>
+            <div class="stats" id="stats"></div>
+            <button class="btn btn-success" onclick="fixCategories()">🔧 Fix SACCO Categories</button>
+        </div>
+
+        <div id="output" class="output"></div>
+    </div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD5SBmm9fzP5dEOXHiYSxIb1VLyMMpCmM0",
+            authDomain: "finance-tracker-7b65f.firebaseapp.com",
+            projectId: "finance-tracker-7b65f",
+            storageBucket: "finance-tracker-7b65f.firebasestorage.app",
+            messagingSenderId: "49611172343",
+            appId: "1:49611172343:web:eba6b63f8f0c9f97bc71dc"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUser = null;
+
+        auth.onAuthStateChanged(function(user) {
+            if (user) {
+                currentUser = user;
+                document.querySelector('.login-section').classList.add('hidden');
+                document.getElementById('fixSection').classList.remove('hidden');
+                log('✅ Logged in as: ' + user.email, 'info');
+                scanForIssues();
+            }
+        });
+
+        async function loginUser() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                log('❌ Please enter both email and password', 'error');
+                return;
+            }
+
+            log('🔐 Logging in...', 'info');
+
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+            } catch (error) {
+                log('❌ Login failed: ' + error.message, 'error');
+            }
+        }
+
+        async function scanForIssues() {
+            log('🔍 Scanning for "SACCO Savings" records...', 'info');
+
+            try {
+                const transactionsSnapshot = await db.collection('users')
+                    .doc(currentUser.uid)
+                    .collection('transactions')
+                    .get();
+
+                const budgetsSnapshot = await db.collection('users')
+                    .doc(currentUser.uid)
+                    .collection('budgets')
+                    .get();
+
+                let transactionCount = 0;
+                let budgetCount = 0;
+
+                transactionsSnapshot.forEach(doc => {
+                    if (doc.data().category === 'SACCO Savings') {
+                        transactionCount++;
+                    }
+                });
+
+                budgetsSnapshot.forEach(doc => {
+                    if (doc.data().category === 'SACCO Savings') {
+                        budgetCount++;
+                    }
+                });
+
+                document.getElementById('stats').innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${transactionCount}</div>
+                        <div class="stat-label">Transactions to fix</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${budgetCount}</div>
+                        <div class="stat-label">Budgets to fix</div>
+                    </div>
+                `;
+
+                if (transactionCount === 0 && budgetCount === 0) {
+                    log('✅ No issues found! All categories are already correct.', 'success');
+                } else {
+                    log(`Found ${transactionCount} transactions and ${budgetCount} budgets to fix.`, 'info');
+                }
+
+            } catch (error) {
+                log('❌ Error scanning: ' + error.message, 'error');
+            }
+        }
+
+        async function fixCategories() {
+            log('🔧 Starting fix process...', 'info');
+
+            try {
+                const batch = db.batch();
+                let fixedCount = 0;
+
+                // Fix transactions
+                const transactionsSnapshot = await db.collection('users')
+                    .doc(currentUser.uid)
+                    .collection('transactions')
+                    .get();
+
+                transactionsSnapshot.forEach(doc => {
+                    if (doc.data().category === 'SACCO Savings') {
+                        const docRef = db.collection('users')
+                            .doc(currentUser.uid)
+                            .collection('transactions')
+                            .doc(doc.id);
+                        batch.update(docRef, { category: 'SACCO savings' });
+                        fixedCount++;
+                    }
+                });
+
+                // Fix budgets
+                const budgetsSnapshot = await db.collection('users')
+                    .doc(currentUser.uid)
+                    .collection('budgets')
+                    .get();
+
+                budgetsSnapshot.forEach(doc => {
+                    if (doc.data().category === 'SACCO Savings') {
+                        const docRef = db.collection('users')
+                            .doc(currentUser.uid)
+                            .collection('budgets')
+                            .doc(doc.id);
+                        batch.update(docRef, { category: 'SACCO savings' });
+                        fixedCount++;
+                    }
+                });
+
+                if (fixedCount > 0) {
+                    await batch.commit();
+                    log(`✅ SUCCESS! Fixed ${fixedCount} records.`, 'success');
+                    log('All "SACCO Savings" → "SACCO savings"', 'success');
+                    log('\nYou can now close this window and refresh your app!', 'success');
+
+                    // Rescan to confirm
+                    setTimeout(scanForIssues, 1000);
+                } else {
+                    log('✅ Nothing to fix! All categories are already correct.', 'success');
+                }
+
+            } catch (error) {
+                log('❌ Error fixing categories: ' + error.message, 'error');
+            }
+        }
+
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            output.className = 'output ' + type;
+            output.textContent += message + '\n';
+            output.scrollTop = output.scrollHeight;
+        }
+    </script>
+</body>
+</html>
