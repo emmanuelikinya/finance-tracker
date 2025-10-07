@@ -2287,18 +2287,30 @@
         // ============================================
 
         async function loadUserData() {
+            console.log('Loading user data for:', currentUser.uid);
             try {
                 // Load transactions
-                const transactionsSnapshot = await db.collection('users')
-                    .doc(currentUser.uid)
-                    .collection('transactions')
-                    .orderBy('date', 'desc')
-                    .get();
+                let transactionsSnapshot;
+                try {
+                    transactionsSnapshot = await db.collection('users')
+                        .doc(currentUser.uid)
+                        .collection('transactions')
+                        .orderBy('date', 'desc')
+                        .get();
+                } catch (indexError) {
+                    // If orderBy fails (needs index), fetch without ordering
+                    console.warn('Fetching transactions without ordering:', indexError.message);
+                    transactionsSnapshot = await db.collection('users')
+                        .doc(currentUser.uid)
+                        .collection('transactions')
+                        .get();
+                }
 
                 transactions = [];
                 transactionsSnapshot.forEach(doc => {
                     transactions.push({ id: doc.id, ...doc.data() });
                 });
+                console.log(`Loaded ${transactions.length} transactions`);
 
                 // Load budgets
                 const budgetsSnapshot = await db.collection('users')
@@ -2373,26 +2385,49 @@
         // Income Form
         document.getElementById('incomeForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            console.log('Income form submitted');
             await addIncome();
         });
 
         async function addIncome() {
+            console.log('addIncome called');
+
+            // Validate required fields
+            const category = document.getElementById('incomeCategory').value;
+            const amount = document.getElementById('incomeAmount').value;
+            const date = document.getElementById('incomeDate').value;
+
+            if (!category || !amount || !date) {
+                console.error('Missing required fields');
+                showNotification({
+                    title: '⚠️ Validation Error',
+                    message: 'Please fill in all required fields (category, amount, date).',
+                    type: 'warning'
+                });
+                return;
+            }
+
             const transaction = {
                 type: 'income',
-                category: document.getElementById('incomeCategory').value,
-                description: document.getElementById('incomeDescription').value,
-                amount: parseFloat(document.getElementById('incomeAmount').value),
-                date: document.getElementById('incomeDate').value,
-                recurring: document.getElementById('incomeRecurring').value,
+                category: category,
+                description: document.getElementById('incomeDescription').value || '',
+                amount: parseFloat(amount),
+                date: date,
+                recurring: document.getElementById('incomeRecurring').value || 'none',
+                userId: currentUser.uid,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
 
+            console.log('Transaction to add:', transaction);
+
             try {
+                console.log('Saving to Firestore...');
                 const docRef = await db.collection('users')
                     .doc(currentUser.uid)
                     .collection('transactions')
                     .add(transaction);
 
+                console.log('Income added with ID:', docRef.id);
                 transaction.id = docRef.id;
                 transactions.unshift(transaction);
 
@@ -2408,9 +2443,11 @@
                 });
             } catch (error) {
                 console.error('Error adding income:', error);
+                console.error('Error code:', error.code);
+                console.error('Error message:', error.message);
                 showNotification({
                     title: '❌ Error',
-                    message: 'Failed to add income. Please try again.',
+                    message: `Failed to add income: ${error.message}`,
                     type: 'danger'
                 });
             }
