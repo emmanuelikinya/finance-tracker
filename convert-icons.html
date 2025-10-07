@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Icon Converter - SVG to PNG</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .icon-preview {
+            display: flex;
+            gap: 30px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        .icon-box {
+            text-align: center;
+        }
+        canvas {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .instructions {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 App Icon Generator</h1>
+
+        <div class="instructions">
+            <strong>Instructions:</strong>
+            <ol>
+                <li>Click the buttons below to download PNG icons</li>
+                <li>Save them as <code>icon-192.png</code> and <code>icon-512.png</code></li>
+                <li>Upload to your project root folder</li>
+                <li>Push to GitHub</li>
+            </ol>
+        </div>
+
+        <div class="icon-preview">
+            <div class="icon-box">
+                <h3>192x192 Icon</h3>
+                <canvas id="canvas192" width="192" height="192"></canvas>
+                <br>
+                <button onclick="downloadIcon('canvas192', 'icon-192.png')">⬇️ Download 192x192</button>
+                <div id="status192" class="success"></div>
+            </div>
+
+            <div class="icon-box">
+                <h3>512x512 Icon</h3>
+                <canvas id="canvas512" width="512" height="512"></canvas>
+                <br>
+                <button onclick="downloadIcon('canvas512', 'icon-512.png')">⬇️ Download 512x512</button>
+                <div id="status512" class="success"></div>
+            </div>
+        </div>
+
+        <button onclick="downloadBoth()" style="background: #28a745; width: 100%; font-size: 18px;">
+            📦 Download Both Icons
+        </button>
+    </div>
+
+    <script>
+        function createIcon(canvasId, size) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const cornerRadius = size * 0.22; // Rounded corners
+
+            // Clear canvas
+            ctx.clearRect(0, 0, size, size);
+
+            // Background gradient with rounded corners
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+
+            // Draw rounded rectangle
+            ctx.beginPath();
+            ctx.moveTo(cornerRadius, 0);
+            ctx.lineTo(size - cornerRadius, 0);
+            ctx.quadraticCurveTo(size, 0, size, cornerRadius);
+            ctx.lineTo(size, size - cornerRadius);
+            ctx.quadraticCurveTo(size, size, size - cornerRadius, size);
+            ctx.lineTo(cornerRadius, size);
+            ctx.quadraticCurveTo(0, size, 0, size - cornerRadius);
+            ctx.lineTo(0, cornerRadius);
+            ctx.quadraticCurveTo(0, 0, cornerRadius, 0);
+            ctx.closePath();
+            ctx.fillStyle = gradient;
+            ctx.fill();
+
+            // Large coin circle
+            const coinRadius = size * 0.26;
+            const coinY = size * 0.45;
+
+            // Coin shadow
+            ctx.beginPath();
+            ctx.arc(size / 2 + 2, coinY + 2, coinRadius, 0, 2 * Math.PI);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fill();
+
+            // Coin
+            ctx.beginPath();
+            ctx.arc(size / 2, coinY, coinRadius, 0, 2 * Math.PI);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+            ctx.fill();
+
+            // Dollar sign
+            ctx.fillStyle = '#667eea';
+            ctx.font = `bold ${size * 0.33}px Arial, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('$', size / 2, coinY + size * 0.02);
+
+            // Chart bars at bottom
+            const barWidth = size * 0.094;
+            const barSpacing = size * 0.137;
+            const startX = size * 0.188;
+            const baseY = size * 0.78;
+            const barHeights = [
+                size * 0.094,
+                size * 0.125,
+                size * 0.083,
+                size * 0.109,
+                size * 0.073
+            ];
+            const barRadius = size * 0.016;
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+
+            for (let i = 0; i < 5; i++) {
+                const x = startX + (i * barSpacing);
+                const height = barHeights[i];
+                const y = baseY - height;
+
+                // Draw rounded rectangle for bar
+                ctx.beginPath();
+                ctx.moveTo(x + barRadius, y);
+                ctx.lineTo(x + barWidth - barRadius, y);
+                ctx.quadraticCurveTo(x + barWidth, y, x + barWidth, y + barRadius);
+                ctx.lineTo(x + barWidth, y + height - barRadius);
+                ctx.quadraticCurveTo(x + barWidth, y + height, x + barWidth - barRadius, y + height);
+                ctx.lineTo(x + barRadius, y + height);
+                ctx.quadraticCurveTo(x, y + height, x, y + height - barRadius);
+                ctx.lineTo(x, y + barRadius);
+                ctx.quadraticCurveTo(x, y, x + barRadius, y);
+                ctx.closePath();
+                ctx.fill();
+
+                // Bar shadow
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                ctx.fillRect(x + 1, y + height, barWidth, 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            }
+        }
+
+        function downloadIcon(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            const url = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = url;
+            link.click();
+
+            const statusId = canvasId.replace('canvas', 'status');
+            document.getElementById(statusId).textContent = '✅ Downloaded!';
+            setTimeout(() => {
+                document.getElementById(statusId).textContent = '';
+            }, 2000);
+        }
+
+        function downloadBoth() {
+            downloadIcon('canvas192', 'icon-192.png');
+            setTimeout(() => {
+                downloadIcon('canvas512', 'icon-512.png');
+            }, 100);
+        }
+
+        // Generate icons on load
+        window.addEventListener('load', () => {
+            createIcon('canvas192', 192);
+            createIcon('canvas512', 512);
+        });
+    </script>
+</body>
+</html>
