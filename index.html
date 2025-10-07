@@ -1827,12 +1827,112 @@
 
                 updateUserProfile(user, isAdmin);
                 await loadUserData();
+
+                // Check if we need to import migrated data
+                checkForMigrationData();
             } else {
                 document.getElementById('authContainer').style.display = 'flex';
                 document.getElementById('appContainer').style.display = 'none';
                 hideLoading();
             }
         });
+
+        // ============================================
+        // DATA MIGRATION FUNCTIONS
+        // ============================================
+
+        async function checkForMigrationData() {
+            // Check URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const shouldImport = urlParams.get('import') === 'true';
+
+            // Check sessionStorage for migration data
+            const migrationDataStr = sessionStorage.getItem('migrationData');
+
+            if (shouldImport && migrationDataStr) {
+                console.log('Migration data detected, starting import...');
+
+                try {
+                    const migrationData = JSON.parse(migrationDataStr);
+                    await importMigrationData(migrationData);
+
+                    // Clear the migration data
+                    sessionStorage.removeItem('migrationData');
+
+                    // Remove import parameter from URL
+                    window.history.replaceState({}, document.title, window.location.pathname);
+
+                    showSuccess('✅ Data imported successfully! Your old data has been transferred to Firebase.');
+                } catch (error) {
+                    console.error('Migration import error:', error);
+                    showError('Failed to import migration data: ' + error.message);
+                }
+            }
+        }
+
+        async function importMigrationData(data) {
+            console.log('Importing migration data:', data);
+
+            const batch = db.batch();
+            let importCount = 0;
+
+            // Import Transactions
+            if (data.transactions && data.transactions.length > 0) {
+                console.log(`Importing ${data.transactions.length} transactions...`);
+                for (const transaction of data.transactions) {
+                    const docRef = db.collection('transactions').doc();
+                    batch.set(docRef, {
+                        ...transaction,
+                        userId: currentUser.uid,
+                        importedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        // Ensure date is a Firestore Timestamp
+                        date: transaction.date ? new Date(transaction.date) : new Date()
+                    });
+                    importCount++;
+                }
+            }
+
+            // Import Budgets
+            if (data.budgets && data.budgets.length > 0) {
+                console.log(`Importing ${data.budgets.length} budgets...`);
+                for (const budget of data.budgets) {
+                    const docRef = db.collection('budgets').doc();
+                    batch.set(docRef, {
+                        ...budget,
+                        userId: currentUser.uid,
+                        importedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    importCount++;
+                }
+            }
+
+            // Import Savings Goals
+            if (data.savingsGoals && data.savingsGoals.length > 0) {
+                console.log(`Importing ${data.savingsGoals.length} savings goals...`);
+                for (const goal of data.savingsGoals) {
+                    const docRef = db.collection('savingsGoals').doc();
+                    batch.set(docRef, {
+                        ...goal,
+                        userId: currentUser.uid,
+                        importedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    importCount++;
+                }
+            }
+
+            // Commit the batch
+            if (importCount > 0) {
+                await batch.commit();
+                console.log(`✅ Successfully imported ${importCount} items to Firebase`);
+
+                // Reload data to display the imported items
+                await loadUserData();
+            } else {
+                console.log('No data to import');
+            }
+
+            return importCount;
+        }
 
         // ============================================
         // UI HELPER FUNCTIONS
