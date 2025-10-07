@@ -25,11 +25,21 @@
             box-sizing: border-box;
         }
 
+        html {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         /* Login Page Styles */
@@ -847,35 +857,237 @@
             justify-content: center;
         }
 
-        /* Responsive */
+        /* Responsive - Mobile First */
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .main-container {
+                padding: 0 10px;
+            }
+
             .login-box {
-                padding: 30px 20px;
+                padding: 25px 15px;
+                border-radius: 15px;
+                max-width: 100%;
             }
 
             .login-header h1 {
-                font-size: 2em;
+                font-size: 1.8em;
+            }
+
+            .login-header p {
+                font-size: 0.9em;
             }
 
             .input-section {
                 grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .form-group {
+                margin-bottom: 12px;
+            }
+
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                font-size: 16px; /* Prevent zoom on iOS */
+                padding: 12px;
+            }
+
+            .btn {
+                padding: 14px 20px;
+                font-size: 16px;
+                width: 100%;
             }
 
             .tabs {
-                flex-direction: column;
+                flex-wrap: wrap;
+                gap: 5px;
             }
 
             .tab-button {
-                width: 100%;
+                flex: 1;
+                min-width: calc(50% - 5px);
+                padding: 12px 8px;
+                font-size: 0.85em;
             }
 
             .dashboard-grid {
                 grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .summary-card {
+                padding: 15px;
+            }
+
+            .summary-card h3 {
+                font-size: 0.9em;
+            }
+
+            .summary-card .amount {
+                font-size: 1.5em;
             }
 
             .header-content {
                 flex-direction: column;
-                text-align: center;
+                gap: 15px;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .user-profile {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .card {
+                padding: 15px;
+                margin-bottom: 15px;
+                border-radius: 12px;
+            }
+
+            .card h2 {
+                font-size: 1.2em;
+            }
+
+            .filters {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .filter-group {
+                min-width: 100%;
+            }
+
+            .transaction-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                padding: 12px;
+            }
+
+            .transaction-details {
+                width: 100%;
+            }
+
+            .transaction-amount {
+                align-self: flex-end;
+                font-size: 1.1em;
+            }
+
+            .budget-item {
+                padding: 12px;
+            }
+
+            .progress-bar {
+                height: 8px;
+            }
+
+            .chart-container {
+                height: 250px !important;
+                margin: 15px 0;
+            }
+
+            .notification-container {
+                left: 10px;
+                right: 10px;
+                max-width: calc(100% - 20px);
+            }
+
+            .notification {
+                padding: 12px;
+                font-size: 0.9em;
+            }
+
+            .settings-content {
+                width: 95%;
+                padding: 20px;
+                max-width: none;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+                margin: 20px auto;
+            }
+
+            /* Fix table overflow */
+            .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            table {
+                min-width: 600px;
+            }
+
+            /* Improve touch targets */
+            button,
+            .btn,
+            .tab-button,
+            a {
+                min-height: 44px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            /* Fix input zoom on iOS */
+            input[type="text"],
+            input[type="email"],
+            input[type="password"],
+            input[type="number"],
+            input[type="tel"],
+            input[type="date"],
+            select,
+            textarea {
+                font-size: 16px !important;
+            }
+        }
+
+        /* Extra small devices */
+        @media (max-width: 480px) {
+            .login-header h1 {
+                font-size: 1.5em;
+            }
+
+            .tab-button {
+                min-width: 100%;
+                margin-bottom: 5px;
+            }
+
+            .summary-card .amount {
+                font-size: 1.3em;
+            }
+
+            .card h2 {
+                font-size: 1.1em;
+            }
+
+            .transaction-item {
+                font-size: 0.9em;
+            }
+
+            .notification {
+                font-size: 0.85em;
+            }
+        }
+
+        /* Landscape mobile */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .login-container {
+                padding: 20px 10px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
