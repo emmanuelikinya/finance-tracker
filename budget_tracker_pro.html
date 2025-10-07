@@ -1,0 +1,3215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Budget Tracker Pro - Multi-user Financial Management System">
+    <meta name="theme-color" content="#667eea">
+    <link rel="manifest" href="manifest.json">
+    <title>Budget Tracker Pro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Login Page Styles */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        .btn-google {
+            background: white;
+            color: #333;
+            border: 2px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-google:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            color: #999;
+            position: relative;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: #ddd;
+        }
+
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
+
+        .toggle-form {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+
+        .toggle-form a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .toggle-form a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message {
+            background: #efe;
+            color: #3c3;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        /* Hide main app initially */
+        .app-container {
+            display: none;
+        }
+
+        /* Loading Spinner */
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2em;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        h3 {
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            color: #333;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        /* Notification Bell */
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+            padding: 8px;
+            background: #f0f0f0;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .notification-bell:hover {
+            background: #e0e0e0;
+            transform: scale(1.1);
+        }
+
+        .notification-bell.has-notifications::after {
+            content: '';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 10px;
+            height: 10px;
+            background: #dc3545;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+        }
+
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 400px;
+        }
+
+        .notification {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border-left: 5px solid;
+            animation: slideIn 0.3s ease-out;
+            cursor: pointer;
+            position: relative;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.warning { border-left-color: #ffc107; }
+        .notification.danger { border-left-color: #dc3545; }
+        .notification.success { border-left-color: #28a745; }
+        .notification.info { border-left-color: #007bff; }
+
+        .notification-close {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .notification-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .notification-body {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .notification-panel {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            width: 360px;
+            max-height: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1500;
+            overflow: hidden;
+        }
+
+        .notification-panel.active {
+            display: block;
+            animation: fadeIn 0.2s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .notification-panel-header {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .notification-item:hover {
+            background: #f8f9fa;
+        }
+
+        .notification-item.unread {
+            background: #e3f2fd;
+        }
+
+        /* User Profile in Header */
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .user-email {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .btn-logout {
+            background: #dc3545;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-logout:hover {
+            background: #c82333;
+        }
+
+        .admin-badge {
+            background: #ffc107;
+            color: #333;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            border: none;
+            background: #667eea;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .tab-button:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .tab-button.active {
+            background: #764ba2;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border-left: 4px solid;
+        }
+
+        .metric-card h3 {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+        }
+
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .metric-change {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .positive {
+            color: #28a745;
+        }
+
+        .negative {
+            color: #dc3545;
+        }
+
+        .neutral {
+            color: #007bff;
+        }
+
+        /* Forms */
+        .input-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid;
+        }
+
+        .income-section {
+            border-color: #28a745;
+        }
+
+        .expense-section {
+            border-color: #dc3545;
+        }
+
+        .budget-section {
+            border-color: #007bff;
+        }
+
+        .savings-section {
+            border-color: #ffc107;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .edit-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-right: 5px;
+            font-size: 14px;
+        }
+
+        /* Progress Bars */
+        .budget-progress {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            background: #e9ecef;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            transition: width 0.3s;
+        }
+
+        .progress-fill.warning {
+            background: linear-gradient(90deg, #ffc107, #fd7e14);
+        }
+
+        .progress-fill.danger {
+            background: linear-gradient(90deg, #dc3545, #c82333);
+        }
+
+        /* Savings Goals */
+        .savings-goal-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .goal-progress {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        /* Filters */
+        .filter-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        /* Summary Grid */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .summary-item {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        /* Export Section */
+        .export-section {
+            margin-top: 30px;
+            text-align: center;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            background: #007bff;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        /* Settings Modal */
+        .settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 3000;
+        }
+
+        .settings-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-content {
+            background: white;
+            max-width: 500px;
+            width: 90%;
+            padding: 30px;
+            border-radius: 15px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .settings-group {
+            margin-bottom: 20px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 25px;
+            display: inline-block;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            border-radius: 25px;
+            transition: .4s;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 17px;
+            width: 17px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            border-radius: 50%;
+            transition: .4s;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #007bff;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(25px);
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .login-box {
+                padding: 30px 20px;
+            }
+
+            .login-header h1 {
+                font-size: 2em;
+            }
+
+            .input-section {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab-button {
+                width: 100%;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login/Register Page -->
+    <div id="authContainer" class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <h1>Budget Tracker Pro</h1>
+                <p>Manage your finances with ease</p>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+
+            <!-- Login Form -->
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+
+            <div class="divider">OR</div>
+
+            <button class="btn btn-google" id="googleSignInBtn">
+                <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg"><g fill="#000" fill-rule="evenodd"><path d="M9 3.48c1.69 0 2.83.73 3.48 1.34l2.54-2.48C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.96l2.91 2.26C4.6 5.05 6.62 3.48 9 3.48z" fill="#EA4335"/><path d="M17.64 9.2c0-.74-.06-1.28-.19-1.84H9v3.34h4.96c-.1.83-.64 2.08-1.84 2.92l2.84 2.2c1.7-1.57 2.68-3.88 2.68-6.62z" fill="#4285F4"/><path d="M3.88 10.78A5.54 5.54 0 0 1 3.58 9c0-.62.11-1.22.29-1.78L.96 4.96A9.008 9.008 0 0 0 0 9c0 1.45.35 2.82.96 4.04l2.92-2.26z" fill="#FBBC05"/><path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.84-2.2c-.76.53-1.78.9-3.12.9-2.38 0-4.4-1.57-5.12-3.74L.97 13.04C2.45 15.98 5.48 18 9 18z" fill="#34A853"/></g></svg>
+                Continue with Google
+            </button>
+
+            <div class="toggle-form">
+                <span id="toggleFormText">Don't have an account? <a href="#" id="toggleFormLink">Sign Up</a></span>
+            </div>
+
+            <!-- Register Form (Hidden initially) -->
+            <form id="registerForm" style="display: none;">
+                <div class="form-group">
+                    <label for="registerName">Full Name</label>
+                    <input type="text" id="registerName" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <input type="password" id="registerPassword" placeholder="Min. 6 characters" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label for="registerPasswordConfirm">Confirm Password</label>
+                    <input type="password" id="registerPasswordConfirm" placeholder="Confirm password" required minlength="6">
+                </div>
+                <button type="submit" class="btn btn-primary">Create Account</button>
+            </form>
+
+            <div class="loading" id="authLoading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Please wait...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container (Hidden until logged in) -->
+    <div id="appContainer" class="app-container">
+        <div class="main-container">
+            <div class="header">
+                <div class="header-content">
+                    <div>
+                        <h1>Budget Tracker Pro</h1>
+                        <p style="color: #666; margin-top: 5px;">Your Personal Finance Manager</p>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div class="notification-bell" id="notificationBell" onclick="toggleNotificationPanel()">
+                            🔔
+                        </div>
+                        <div class="user-profile">
+                            <div class="user-avatar" id="userAvatar">U</div>
+                            <div class="user-info">
+                                <div>
+                                    <span class="user-name" id="userName">User</span>
+                                    <span class="admin-badge" id="adminBadge" style="display: none;">ADMIN</span>
+                                </div>
+                                <span class="user-email" id="userEmail">user@email.com</span>
+                            </div>
+                            <button class="btn-logout" id="logoutBtn">Logout</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab-button active" onclick="showTab('dashboard')">📊 Dashboard</button>
+                    <button class="tab-button" onclick="showTab('income')">💵 Income</button>
+                    <button class="tab-button" onclick="showTab('expense')">💸 Expenses</button>
+                    <button class="tab-button" onclick="showTab('budget')">📋 Budget</button>
+                    <button class="tab-button" onclick="showTab('budgetVsActual')">📈 Budget vs Actual</button>
+                    <button class="tab-button" onclick="showTab('savings')">🎯 Savings Goals</button>
+                    <button class="tab-button" onclick="showTab('trends')">📉 Trends</button>
+                    <button class="tab-button" onclick="showTab('reports')">📑 Reports</button>
+                    <button class="tab-button" id="adminTabBtn" onclick="showTab('admin')" style="background: #ffc107; color: #333; display: none;">👑 Admin</button>
+                </div>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content active">
+                <h2>Financial Dashboard & Analytics</h2>
+
+                <div class="dashboard-grid">
+                    <div class="metric-card" style="border-color: #28a745;">
+                        <h3>Total Income</h3>
+                        <div class="metric-value positive" id="dashTotalIncome">KSH 0.00</div>
+                        <div class="metric-change">This Month</div>
+                    </div>
+
+                    <div class="metric-card" style="border-color: #dc3545;">
+                        <h3>Total Expenses</h3>
+                        <div class="metric-value negative" id="dashTotalExpense">KSH 0.00</div>
+                        <div class="metric-change">This Month</div>
+                    </div>
+
+                    <div class="metric-card" style="border-color: #007bff;">
+                        <h3>Net Balance</h3>
+                        <div class="metric-value neutral" id="dashBalance">KSH 0.00</div>
+                        <div class="metric-change">Current</div>
+                    </div>
+
+                    <div class="metric-card" style="border-color: #ffc107;">
+                        <h3>Savings Rate</h3>
+                        <div class="metric-value" id="dashSavingsRate">0%</div>
+                        <div class="metric-change">Of Income</div>
+                    </div>
+
+                    <div class="metric-card" style="border-color: #17a2b8;">
+                        <h3>Budget Used</h3>
+                        <div class="metric-value" id="dashBudgetUsed">0%</div>
+                        <div class="metric-change">This Month</div>
+                    </div>
+
+                    <div class="metric-card" style="border-color: #6c757d;">
+                        <h3>Active Goals</h3>
+                        <div class="metric-value" id="dashActiveGoals">0</div>
+                        <div class="metric-change">In Progress</div>
+                    </div>
+                </div>
+
+                <h3>Quick Actions</h3>
+                <div class="summary-grid">
+                    <button class="btn-success" onclick="showTab('income')">Add Income</button>
+                    <button class="btn-danger" onclick="showTab('expense')">Add Expense</button>
+                    <button class="btn-primary" onclick="showTab('budget')">Set Budget</button>
+                    <button class="btn-warning" onclick="showTab('savings')">Create Goal</button>
+                    <button class="btn-primary" style="background: #6c757d;" onclick="setupPredefinedBudgets()">Apply KSH 50,000 Budget</button>
+                </div>
+
+                <h3>Recent Transactions</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashRecentTransactions">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Income Tracking Tab -->
+            <div id="income" class="tab-content">
+                <h2>Income Tracking & Management</h2>
+
+                <div class="input-section">
+                    <div class="form-section income-section">
+                        <h3>➕ Add Income</h3>
+                        <form id="incomeForm">
+                            <div class="form-group">
+                                <label for="incomeCategory">Category:</label>
+                                <select id="incomeCategory" required>
+                                    <option value="">Select Category</option>
+                                    <option value="Salary">Salary</option>
+                                    <option value="Freelance">Freelance</option>
+                                    <option value="Business">Business</option>
+                                    <option value="Investments">Investments</option>
+                                    <option value="Rental">Rental Income</option>
+                                    <option value="Dividends">Dividends</option>
+                                    <option value="Bonus">Bonus</option>
+                                    <option value="Commission">Commission</option>
+                                    <option value="Gifts">Gifts</option>
+                                    <option value="Refunds">Refunds</option>
+                                    <option value="Pension">Pension</option>
+                                    <option value="Royalties">Royalties</option>
+                                    <option value="Grants">Grants</option>
+                                    <option value="Other">Other Income</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="incomeDescription">Description:</label>
+                                <input type="text" id="incomeDescription" placeholder="e.g., Monthly salary" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="incomeAmount">Amount (KSH):</label>
+                                <input type="number" id="incomeAmount" step="0.01" placeholder="0.00" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="incomeDate">Date:</label>
+                                <input type="date" id="incomeDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="incomeRecurring">Recurring:</label>
+                                <select id="incomeRecurring">
+                                    <option value="no">No</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="biweekly">Bi-weekly</option>
+                                    <option value="monthly">Monthly</option>
+                                    <option value="quarterly">Quarterly</option>
+                                    <option value="yearly">Yearly</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn-success">Add Income</button>
+                        </form>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>📊 Income Summary</h3>
+                        <div class="summary-item">
+                            <strong>Total This Month:</strong>
+                            <span id="incomeMonthTotal" style="color: #28a745; font-size: 1.5em;">KSH 0.00</span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>Average Daily:</strong>
+                            <span id="incomeDailyAvg">KSH 0.00</span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>Top Category:</strong>
+                            <span id="incomeTopCategory">-</span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>Income Sources:</strong>
+                            <span id="incomeSources">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Income History</h3>
+                <div class="filter-section">
+                    <div class="filter-group">
+                        <label>Filter by Category:</label>
+                        <select id="incomeFilterCategory" onchange="filterTransactions()">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Date Range:</label>
+                        <input type="month" id="incomeFilterMonth" onchange="filterTransactions()">
+                    </div>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Recurring</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="incomeList">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Expense Tracking Tab -->
+            <div id="expense" class="tab-content">
+                <h2>Expense Tracking & Management</h2>
+
+                <div class="input-section">
+                    <div class="form-section expense-section">
+                        <h3>➖ Add Expense</h3>
+                        <form id="expenseForm">
+                            <div class="form-group">
+                                <label for="expenseCategory">Category:</label>
+                                <select id="expenseCategory" required>
+                                    <option value="">Select Category</option>
+                                    <option value="Childcare">Childcare</option>
+                                    <option value="Clothing">Clothing</option>
+                                    <option value="Debt">Debt Payments</option>
+                                    <option value="Dining">Dining Out</option>
+                                    <option value="Education">Education</option>
+                                    <option value="Emergency Fund">Emergency Fund</option>
+                                    <option value="Entertainment">Entertainment</option>
+                                    <option value="Family">Family</option>
+                                    <option value="Food & Groceries">Food & Groceries</option>
+                                    <option value="Gifts">Gifts & Donations</option>
+                                    <option value="Groceries">Groceries</option>
+                                    <option value="Healthcare">Healthcare</option>
+                                    <option value="Insurance">Insurance</option>
+                                    <option value="Internet">Internet/Phone</option>
+                                    <option value="Maintenance">Home Maintenance</option>
+                                    <option value="Miscellaneous">Miscellaneous</option>
+                                    <option value="Personal Care">Personal Care</option>
+                                    <option value="Pets">Pet Care</option>
+                                    <option value="Rent">Rent/Mortgage</option>
+                                    <option value="SACCO Savings">SACCO Savings</option>
+                                    <option value="Savings">Savings</option>
+                                    <option value="Shopping">Shopping</option>
+                                    <option value="Subscriptions">Subscriptions</option>
+                                    <option value="Taxes">Taxes</option>
+                                    <option value="Transportation">Transportation</option>
+                                    <option value="Travel">Travel</option>
+                                    <option value="Utilities">Utilities</option>
+                                    <option value="Other">Other Expense</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="expenseDescription">Description:</label>
+                                <input type="text" id="expenseDescription" placeholder="e.g., Monthly rent payment" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="expenseAmount">Amount (KSH):</label>
+                                <input type="number" id="expenseAmount" step="0.01" placeholder="0.00" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="expenseDate">Date:</label>
+                                <input type="date" id="expenseDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="expensePaymentMethod">Payment Method:</label>
+                                <select id="expensePaymentMethod">
+                                    <option value="Cash">Cash</option>
+                                    <option value="M-Pesa">M-Pesa</option>
+                                    <option value="Credit Card">Credit Card</option>
+                                    <option value="Debit Card">Debit Card</option>
+                                    <option value="Bank Transfer">Bank Transfer</option>
+                                    <option value="Check">Check</option>
+                                    <option value="Digital Wallet">Digital Wallet</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn-danger">Add Expense</button>
+                        </form>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>📊 Expense Summary</h3>
+                        <div class="summary-item">
+                            <strong>Total This Month:</strong>
+                            <span id="expenseMonthTotal" style="color: #dc3545; font-size: 1.5em;">KSH 0.00</span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>Average Daily:</strong>
+                            <span id="expenseDailyAvg">KSH 0.00</span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>Highest Category:</strong>
+                            <span id="expenseTopCategory">-</span>
+                        </div>
+                        <div class="summary-item">
+                            <strong>Total Transactions:</strong>
+                            <span id="expenseCount">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Expense History</h3>
+                <div class="filter-section">
+                    <div class="filter-group">
+                        <label>Filter by Category:</label>
+                        <select id="expenseFilterCategory" onchange="filterTransactions()">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Date Range:</label>
+                        <input type="month" id="expenseFilterMonth" onchange="filterTransactions()">
+                    </div>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Payment Method</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expenseList">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Budget Setup Tab -->
+            <div id="budget" class="tab-content">
+                <h2>Monthly Budget Configuration</h2>
+
+                <div class="input-section">
+                    <div class="form-section budget-section">
+                        <h3>📋 Set Budget Limits</h3>
+                        <form id="budgetForm">
+                            <div class="form-group">
+                                <label for="budgetMonth">Budget Month:</label>
+                                <input type="month" id="budgetMonth" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="budgetCategory">Category:</label>
+                                <select id="budgetCategory" required>
+                                    <option value="">Select Category</option>
+                                    <option value="Overall">Overall Budget</option>
+                                    <option value="Rent">Rent/Mortgage</option>
+                                    <option value="Utilities">Utilities</option>
+                                    <option value="Groceries">Groceries</option>
+                                    <option value="Transportation">Transportation</option>
+                                    <option value="Insurance">Insurance</option>
+                                    <option value="Healthcare">Healthcare</option>
+                                    <option value="Entertainment">Entertainment</option>
+                                    <option value="Dining">Dining Out</option>
+                                    <option value="Shopping">Shopping</option>
+                                    <option value="Savings">Savings</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="budgetAmount">Budget Amount (KSH):</label>
+                                <input type="number" id="budgetAmount" step="0.01" placeholder="0.00" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="budgetNotes">Notes (Optional):</label>
+                                <textarea id="budgetNotes" placeholder="Add any notes about this budget..."></textarea>
+                            </div>
+                            <button type="submit" class="btn-primary">Set Budget</button>
+                        </form>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>📊 Active Budgets</h3>
+                        <div id="overallBudgetDisplay" style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #007bff;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <strong style="font-size: 1.1em;">Total Monthly Budget:</strong>
+                                <span id="totalMonthlyBudget" style="font-size: 1.5em; font-weight: bold; color: #007bff;">KSH 0.00</span>
+                            </div>
+                            <div id="overallBudgetProgress" style="display: none;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9em;">
+                                    <span id="overallSpentText">Spent: KSH 0.00</span>
+                                    <span id="overallRemainingText">Remaining: KSH 0.00</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div id="overallProgressFill" class="progress-fill" style="width: 0%"></div>
+                                </div>
+                                <div style="text-align: center; margin-top: 5px; font-size: 0.9em;">
+                                    <span id="overallPercentageText">0% used</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="activeBudgetsList">
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Budget Allocation</h3>
+                <div class="chart-container" id="budgetChart">
+                    <canvas id="budgetPieChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Budget vs Actual Tab -->
+            <div id="budgetVsActual" class="tab-content">
+                <h2>Budget vs Actual Analysis</h2>
+
+                <div class="filter-section">
+                    <div class="filter-group">
+                        <label>Select Month:</label>
+                        <input type="month" id="analysisMonth" onchange="updateBudgetAnalysis()">
+                    </div>
+                </div>
+
+                <div id="budgetComparisonList">
+                </div>
+
+                <h3>Category Breakdown</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Budgeted</th>
+                            <th>Actual</th>
+                            <th>Difference</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="budgetAnalysisTable">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Savings Goals Tab -->
+            <div id="savings" class="tab-content">
+                <h2>Savings Goals & Targets</h2>
+
+                <div class="input-section">
+                    <div class="form-section savings-section">
+                        <h3>🎯 Create Savings Goal</h3>
+                        <form id="savingsForm">
+                            <div class="form-group">
+                                <label for="goalName">Goal Name:</label>
+                                <input type="text" id="goalName" placeholder="e.g., Emergency Fund, Vacation" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="goalAmount">Target Amount (KSH):</label>
+                                <input type="number" id="goalAmount" step="0.01" placeholder="0.00" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="goalDeadline">Target Date:</label>
+                                <input type="date" id="goalDeadline" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="goalPriority">Priority:</label>
+                                <select id="goalPriority">
+                                    <option value="High">High</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="Low">Low</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="goalDescription">Description (Optional):</label>
+                                <textarea id="goalDescription" placeholder="What is this savings goal for?"></textarea>
+                            </div>
+                            <button type="submit" class="btn-warning">Create Goal</button>
+                        </form>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>💰 Add to Savings</h3>
+                        <form id="savingsContributionForm">
+                            <div class="form-group">
+                                <label for="contributionGoal">Select Goal:</label>
+                                <select id="contributionGoal" required>
+                                    <option value="">Select a goal</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="contributionAmount">Amount (KSH):</label>
+                                <input type="number" id="contributionAmount" step="0.01" placeholder="0.00" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contributionDate">Date:</label>
+                                <input type="date" id="contributionDate" required>
+                            </div>
+                            <button type="submit" class="btn-success">Add Contribution</button>
+                        </form>
+                    </div>
+                </div>
+
+                <h3>Active Savings Goals</h3>
+                <div id="savingsGoalsList">
+                </div>
+            </div>
+
+            <!-- Monthly Trends Tab -->
+            <div id="trends" class="tab-content">
+                <h2>Monthly Trends & Analysis</h2>
+
+                <div class="filter-section">
+                    <div class="filter-group">
+                        <label>Time Period:</label>
+                        <select id="trendPeriod" onchange="updateTrends()">
+                            <option value="3">Last 3 Months</option>
+                            <option value="6">Last 6 Months</option>
+                            <option value="12">Last 12 Months</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="metric-card" style="border-color: #28a745;">
+                        <h3>Income Trend</h3>
+                        <div class="metric-value" id="incomeTrend">↑ 0%</div>
+                        <div class="metric-change">vs Previous Period</div>
+                    </div>
+
+                    <div class="metric-card" style="border-color: #dc3545;">
+                        <h3>Expense Trend</h3>
+                        <div class="metric-value" id="expenseTrend">↑ 0%</div>
+                        <div class="metric-change">vs Previous Period</div>
+                    </div>
+
+                    <div class="metric-card" style="border-color: #007bff;">
+                        <h3>Savings Trend</h3>
+                        <div class="metric-value" id="savingsTrend">↑ 0%</div>
+                        <div class="metric-change">vs Previous Period</div>
+                    </div>
+                </div>
+
+                <h3>Monthly Comparison</h3>
+                <div class="chart-container">
+                    <canvas id="trendsChart"></canvas>
+                </div>
+
+                <h3>Category Spending Trends</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>3 Month Avg</th>
+                            <th>6 Month Avg</th>
+                            <th>12 Month Avg</th>
+                            <th>Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody id="categoryTrendsTable">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Reports Tab -->
+            <div id="reports" class="tab-content">
+                <h2>Financial Reports</h2>
+
+                <div class="filter-section">
+                    <div class="filter-group">
+                        <label>Report Type:</label>
+                        <select id="reportType">
+                            <option value="summary">Monthly Summary</option>
+                            <option value="detailed">Detailed Report</option>
+                            <option value="yearly">Yearly Report</option>
+                            <option value="tax">Tax Report</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Period:</label>
+                        <input type="month" id="reportPeriod">
+                    </div>
+                    <div class="filter-group">
+                        <button class="btn-primary" onclick="generateReport()">Generate Report</button>
+                    </div>
+                </div>
+
+                <div id="reportContent">
+                </div>
+
+                <div class="export-section">
+                    <button class="export-btn" onclick="exportToCSV()">📥 Export to CSV</button>
+                    <button class="export-btn" onclick="exportToPDF()">📄 Export to PDF</button>
+                    <button class="export-btn" onclick="printReport()">🖨️ Print Report</button>
+                </div>
+            </div>
+
+            <!-- Admin Panel -->
+            <div id="admin" class="tab-content">
+                <h2>👑 Admin Panel</h2>
+                <p style="margin-bottom: 20px; color: #666;">Manage users and view system statistics</p>
+
+                <div id="adminContent">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading admin data...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <!-- Notification Panel -->
+    <div class="notification-panel" id="notificationPanel">
+        <div class="notification-panel-header">
+            <h3>Notifications</h3>
+            <button onclick="openSettings()" style="background: none; border: none; cursor: pointer; font-size: 18px;">⚙️</button>
+        </div>
+        <div class="notification-list" id="notificationList">
+            <div style="padding: 20px; text-align: center; color: #999;">
+                No notifications yet
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="settings-modal" id="settingsModal">
+        <div class="settings-content">
+            <h2>Notification Settings</h2>
+            <button onclick="closeSettings()" style="position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+
+            <div class="settings-group">
+                <label style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>Budget Alerts (when exceeding threshold)</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="budgetAlertsEnabled" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </label>
+                <div style="margin-top: 10px;">
+                    <label>Alert threshold:
+                        <input type="number" id="budgetThreshold" value="80" min="50" max="100" style="width: 60px;">%
+                    </label>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <label style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>Low Balance Alerts</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="balanceAlertsEnabled" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </label>
+                <div style="margin-top: 10px;">
+                    <label>Alert when below: KSH
+                        <input type="number" id="balanceThreshold" value="10000" min="0" style="width: 100px;">
+                    </label>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <label style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>Large Transaction Alerts</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="transactionAlertsEnabled" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </label>
+                <div style="margin-top: 10px;">
+                    <label>Alert for transactions over: KSH
+                        <input type="number" id="transactionThreshold" value="50000" min="1000" style="width: 100px;">
+                    </label>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <label style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>Savings Goal Reminders</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="savingsAlertsEnabled" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </label>
+            </div>
+
+            <button onclick="saveSettings()" style="width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">Save Settings</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // ============================================
+        // FIREBASE CONFIGURATION
+        // ============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDDDBcefZCtNmnIZwPwSC-RGlgjr7tvKLo",
+            authDomain: "financial-tracker-2728d.firebaseapp.com",
+            projectId: "financial-tracker-2728d",
+            storageBucket: "financial-tracker-2728d.firebasestorage.app",
+            messagingSenderId: "91227752299",
+            appId: "1:91227752299:web:0eed44779c5f3e2591ee2e",
+            measurementId: "G-Q7HG9HENHP"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Admin users
+        const ADMIN_EMAILS = ['YOUR_ADMIN_EMAIL@example.com'];
+
+        // Current user
+        let currentUser = null;
+        let isAdmin = false;
+
+        // In-memory cache for data
+        let transactions = [];
+        let budgets = [];
+        let savingsGoals = [];
+        let savingsContributions = [];
+        let notifications = [];
+        let notificationSettings = {
+            budgetAlertsEnabled: true,
+            budgetThreshold: 80,
+            balanceAlertsEnabled: true,
+            balanceThreshold: 10000,
+            savingsAlertsEnabled: true,
+            transactionAlertsEnabled: true,
+            transactionThreshold: 50000
+        };
+
+        // ============================================
+        // AUTHENTICATION FUNCTIONS
+        // ============================================
+
+        // Toggle between login and register forms
+        document.getElementById('toggleFormLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const toggleText = document.getElementById('toggleFormText');
+            const googleBtn = document.getElementById('googleSignInBtn');
+            const divider = document.querySelector('.divider');
+
+            if (loginForm.style.display === 'none') {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                googleBtn.style.display = 'flex';
+                divider.style.display = 'block';
+                toggleText.innerHTML = 'Don\'t have an account? <a href="#" id="toggleFormLink">Sign Up</a>';
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                googleBtn.style.display = 'none';
+                divider.style.display = 'none';
+                toggleText.innerHTML = 'Already have an account? <a href="#" id="toggleFormLink">Login</a>';
+            }
+
+            document.getElementById('toggleFormLink').addEventListener('click', arguments.callee);
+        });
+
+        // Email/Password Login
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            showLoading();
+            hideMessages();
+
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+            } catch (error) {
+                hideLoading();
+                showError(getErrorMessage(error.code));
+            }
+        });
+
+        // Email/Password Registration
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerPasswordConfirm').value;
+
+            hideMessages();
+
+            if (password !== confirmPassword) {
+                showError('Passwords do not match!');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+
+                await userCredential.user.updateProfile({
+                    displayName: name
+                });
+
+                await db.collection('users').doc(userCredential.user.uid).set({
+                    name: name,
+                    email: email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    isAdmin: ADMIN_EMAILS.includes(email.toLowerCase())
+                });
+
+                showSuccess('Account created successfully! Redirecting...');
+            } catch (error) {
+                hideLoading();
+                showError(getErrorMessage(error.code));
+            }
+        });
+
+        // Google Sign In
+        document.getElementById('googleSignInBtn').addEventListener('click', async function() {
+            console.log('Google Sign-in button clicked');
+            showLoading();
+            hideMessages();
+
+            const provider = new firebase.auth.GoogleAuthProvider();
+            console.log('Provider created, attempting popup...');
+
+            try {
+                const result = await auth.signInWithPopup(provider);
+                console.log('Sign-in successful:', result.user.email);
+
+                const userDoc = await db.collection('users').doc(result.user.uid).get();
+
+                if (!userDoc.exists) {
+                    await db.collection('users').doc(result.user.uid).set({
+                        name: result.user.displayName,
+                        email: result.user.email,
+                        photoURL: result.user.photoURL,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        isAdmin: ADMIN_EMAILS.includes(result.user.email.toLowerCase())
+                    });
+                }
+            } catch (error) {
+                console.error('Google Sign-in error:', error);
+                console.error('Error code:', error.code);
+                console.error('Error message:', error.message);
+                hideLoading();
+                showError(getErrorMessage(error.code));
+            }
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async function() {
+            try {
+                await auth.signOut();
+                location.reload();
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        });
+
+        // Monitor authentication state
+        auth.onAuthStateChanged(async function(user) {
+            if (user) {
+                currentUser = user;
+
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                isAdmin = userDoc.exists && userDoc.data().isAdmin === true;
+
+                document.getElementById('authContainer').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'block';
+
+                updateUserProfile(user, isAdmin);
+                await loadUserData();
+            } else {
+                document.getElementById('authContainer').style.display = 'flex';
+                document.getElementById('appContainer').style.display = 'none';
+                hideLoading();
+            }
+        });
+
+        // ============================================
+        // UI HELPER FUNCTIONS
+        // ============================================
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        function showLoading() {
+            document.getElementById('authLoading').style.display = 'block';
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('authLoading').style.display = 'none';
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+
+            if (registerForm.style.display !== 'block') {
+                loginForm.style.display = 'block';
+            }
+        }
+
+        function getErrorMessage(code) {
+            const errors = {
+                'auth/email-already-in-use': 'This email is already registered.',
+                'auth/invalid-email': 'Invalid email address.',
+                'auth/operation-not-allowed': 'Email/password accounts are not enabled.',
+                'auth/weak-password': 'Password is too weak. Use at least 6 characters.',
+                'auth/user-disabled': 'This account has been disabled.',
+                'auth/user-not-found': 'No account found with this email.',
+                'auth/wrong-password': 'Incorrect password.',
+                'auth/popup-closed-by-user': 'Sign-in popup was closed.',
+                'auth/cancelled-popup-request': 'Only one popup request is allowed at a time.'
+            };
+            return errors[code] || 'An error occurred. Please try again.';
+        }
+
+        function updateUserProfile(user, admin) {
+            const displayName = user.displayName || user.email;
+            const initial = displayName.charAt(0).toUpperCase();
+
+            document.getElementById('userAvatar').textContent = initial;
+            document.getElementById('userName').textContent = user.displayName || 'User';
+            document.getElementById('userEmail').textContent = user.email;
+
+            if (admin) {
+                document.getElementById('adminBadge').style.display = 'inline-block';
+                document.getElementById('adminTabBtn').style.display = 'block';
+            }
+        }
+
+        // ============================================
+        // DATA MANAGEMENT FUNCTIONS
+        // ============================================
+
+        async function loadUserData() {
+            try {
+                // Load transactions
+                const transactionsSnapshot = await db.collection('users')
+                    .doc(currentUser.uid)
+                    .collection('transactions')
+                    .orderBy('date', 'desc')
+                    .get();
+
+                transactions = [];
+                transactionsSnapshot.forEach(doc => {
+                    transactions.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Load budgets
+                const budgetsSnapshot = await db.collection('users')
+                    .doc(currentUser.uid)
+                    .collection('budgets')
+                    .get();
+
+                budgets = [];
+                budgetsSnapshot.forEach(doc => {
+                    budgets.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Load savings goals
+                const goalsSnapshot = await db.collection('users')
+                    .doc(currentUser.uid)
+                    .collection('savingsGoals')
+                    .get();
+
+                savingsGoals = [];
+                goalsSnapshot.forEach(doc => {
+                    savingsGoals.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Load savings contributions
+                const contributionsSnapshot = await db.collection('users')
+                    .doc(currentUser.uid)
+                    .collection('savingsContributions')
+                    .get();
+
+                savingsContributions = [];
+                contributionsSnapshot.forEach(doc => {
+                    savingsContributions.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Load notification settings
+                const settingsDoc = await db.collection('users')
+                    .doc(currentUser.uid)
+                    .collection('settings')
+                    .doc('notifications')
+                    .get();
+
+                if (settingsDoc.exists) {
+                    notificationSettings = settingsDoc.data();
+                }
+
+                // Initialize UI
+                setTodayDate();
+                updateDashboard();
+                populateFilterCategories();
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        function setTodayDate() {
+            const today = new Date().toISOString().split('T')[0];
+            const currentMonth = new Date().toISOString().slice(0, 7);
+
+            document.getElementById('incomeDate').value = today;
+            document.getElementById('expenseDate').value = today;
+            document.getElementById('contributionDate').value = today;
+            document.getElementById('budgetMonth').value = currentMonth;
+            document.getElementById('analysisMonth').value = currentMonth;
+            document.getElementById('reportPeriod').value = currentMonth;
+        }
+
+        // ============================================
+        // TRANSACTION FUNCTIONS
+        // ============================================
+
+        // Income Form
+        document.getElementById('incomeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await addIncome();
+        });
+
+        async function addIncome() {
+            const transaction = {
+                type: 'income',
+                category: document.getElementById('incomeCategory').value,
+                description: document.getElementById('incomeDescription').value,
+                amount: parseFloat(document.getElementById('incomeAmount').value),
+                date: document.getElementById('incomeDate').value,
+                recurring: document.getElementById('incomeRecurring').value,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                const docRef = await db.collection('users')
+                    .doc(currentUser.uid)
+                    .collection('transactions')
+                    .add(transaction);
+
+                transaction.id = docRef.id;
+                transactions.unshift(transaction);
+
+                document.getElementById('incomeForm').reset();
+                setTodayDate();
+                updateIncomeTab();
+                updateDashboard();
+
+                showNotification({
+                    title: '✅ Income Added',
+                    message: `Successfully added KSH ${transaction.amount.toFixed(2)} income.`,
+                    type: 'success'
+                });
+            } catch (error) {
+                console.error('Error adding income:', error);
+                showNotification({
+                    title: '❌ Error',
+                    message: 'Failed to add income. Please try again.',
+                    type: 'danger'
+                });
+            }
+        }
+
+        // Expense Form
+        document.getElementById('expenseForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await addExpense();
+        });
+
+        async function addExpense() {
+            const transaction = {
+                type: 'expense',
+                category: document.getElementById('expenseCategory').value,
+                description: document.getElementById('expenseDescription').value,
+                amount: parseFloat(document.getElementById('expenseAmount').value),
+                date: document.getElementById('expenseDate').value,
+                paymentMethod: document.getElementById('expensePaymentMethod').value,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                const docRef = await db.collection('users')
+                    .doc(currentUser.uid)
+                    .collection('transactions')
+                    .add(transaction);
+
+                transaction.id = docRef.id;
+                transactions.unshift(transaction);
+
+                // Check alerts
+                checkBudgetAlert(transaction.category, transaction.amount, transaction.date);
+                checkLargeTransactionAlert(transaction.amount, transaction.category);
+                checkBalanceAlert();
+
+                document.getElementById('expenseForm').reset();
+                setTodayDate();
+                updateExpenseTab();
+                updateDashboard();
+
+                showNotification({
+                    title: '✅ Expense Added',
+                    message: `Successfully added KSH ${transaction.amount.toFixed(2)} expense.`,
+                    type: 'success'
+                });
+            } catch (error) {
+                console.error('Error adding expense:', error);
+                showNotification({
+                    title: '❌ Error',
+                    message: 'Failed to add expense. Please try again.',
+                    type: 'danger'
+                });
+            }
+        }
+
+        async function deleteTransaction(id) {
+            if (confirm('Are you sure you want to delete this transaction?')) {
+                try {
+                    await db.collection('users')
+                        .doc(currentUser.uid)
+                        .collection('transactions')
+                        .doc(id)
+                        .delete();
+
+                    transactions = transactions.filter(t => t.id !== id);
+                    updateDashboard();
+                    updateIncomeTab();
+                    updateExpenseTab();
+
+                    showNotification({
+                        title: '✅ Deleted',
+                        message: 'Transaction deleted successfully.',
+                        type: 'success'
+                    });
+                } catch (error) {
+                    console.error('Error deleting transaction:', error);
+                    showNotification({
+                        title: '❌ Error',
+                        message: 'Failed to delete transaction.',
+                        type: 'danger'
+                    });
+                }
+            }
+        }
+
+        // ============================================
+        // BUDGET FUNCTIONS
+        // ============================================
+
+        document.getElementById('budgetForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await addBudget();
+        });
+
+        async function addBudget() {
+            const budget = {
+                month: document.getElementById('budgetMonth').value,
+                category: document.getElementById('budgetCategory').value,
+                amount: parseFloat(document.getElementById('budgetAmount').value),
+                notes: document.getElementById('budgetNotes').value,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                // Find existing budget for same category and month
+                const existingBudget = budgets.find(b =>
+                    b.month === budget.month && b.category === budget.category
+                );
+
+                if (existingBudget) {
+                    // Update existing
+                    await db.collection('users')
+                        .doc(currentUser.uid)
+                        .collection('budgets')
+                        .doc(existingBudget.id)
+                        .update({
+                            amount: budget.amount,
+                            notes: budget.notes
+                        });
+
+                    existingBudget.amount = budget.amount;
+                    existingBudget.notes = budget.notes;
+                } else {
+                    // Create new
+                    const docRef = await db.collection('users')
+                        .doc(currentUser.uid)
+                        .collection('budgets')
+                        .add(budget);
+
+                    budget.id = docRef.id;
+                    budgets.push(budget);
+                }
+
+                document.getElementById('budgetForm').reset();
+                setTodayDate();
+                updateBudgetTab();
+                updateDashboard();
+
+                showNotification({
+                    title: '✅ Budget Set',
+                    message: `Budget for ${budget.category} set to KSH ${budget.amount.toFixed(2)}.`,
+                    type: 'success'
+                });
+            } catch (error) {
+                console.error('Error adding budget:', error);
+                showNotification({
+                    title: '❌ Error',
+                    message: 'Failed to set budget. Please try again.',
+                    type: 'danger'
+                });
+            }
+        }
+
+        async function deleteBudget(id) {
+            if (confirm('Are you sure you want to delete this budget?')) {
+                try {
+                    await db.collection('users')
+                        .doc(currentUser.uid)
+                        .collection('budgets')
+                        .doc(id)
+                        .delete();
+
+                    budgets = budgets.filter(b => b.id !== id);
+                    updateBudgetTab();
+
+                    showNotification({
+                        title: '✅ Deleted',
+                        message: 'Budget deleted successfully.',
+                        type: 'success'
+                    });
+                } catch (error) {
+                    console.error('Error deleting budget:', error);
+                }
+            }
+        }
+
+        async function setupPredefinedBudgets() {
+            const currentMonth = new Date().toISOString().slice(0, 7);
+
+            const predefinedBudgets = [
+                { category: 'Overall', amount: 50000 },
+                { category: 'Rent', amount: 9000 },
+                { category: 'Utilities', amount: 9000 },
+                { category: 'Groceries', amount: 9000 },
+                { category: 'Transportation', amount: 9000 },
+                { category: 'Savings', amount: 10000 },
+                { category: 'Healthcare', amount: 2000 },
+                { category: 'Education', amount: 2000 },
+                { category: 'Entertainment', amount: 2000 },
+                { category: 'Shopping', amount: 1500 },
+                { category: 'Other', amount: 4500 }
+            ];
+
+            try {
+                // Delete existing budgets for this month
+                const existingMonthBudgets = budgets.filter(b => b.month === currentMonth);
+                for (const budget of existingMonthBudgets) {
+                    await db.collection('users')
+                        .doc(currentUser.uid)
+                        .collection('budgets')
+                        .doc(budget.id)
+                        .delete();
+                }
+
+                budgets = budgets.filter(b => b.month !== currentMonth);
+
+                // Add new budgets
+                for (const item of predefinedBudgets) {
+                    const budget = {
+                        month: currentMonth,
+                        category: item.category,
+                        amount: item.amount,
+                        notes: 'Auto-generated budget',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+
+                    const docRef = await db.collection('users')
+                        .doc(currentUser.uid)
+                        .collection('budgets')
+                        .add(budget);
+
+                    budget.id = docRef.id;
+                    budgets.push(budget);
+                }
+
+                updateBudgetTab();
+                updateDashboard();
+
+                showNotification({
+                    title: '✅ Budget Set',
+                    message: 'Your monthly budget has been configured successfully!',
+                    type: 'success'
+                });
+            } catch (error) {
+                console.error('Error setting predefined budgets:', error);
+                showNotification({
+                    title: '❌ Error',
+                    message: 'Failed to set predefined budgets.',
+                    type: 'danger'
+                });
+            }
+        }
+
+        // ============================================
+        // SAVINGS FUNCTIONS
+        // ============================================
+
+        document.getElementById('savingsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await addSavingsGoal();
+        });
+
+        async function addSavingsGoal() {
+            const goal = {
+                name: document.getElementById('goalName').value,
+                targetAmount: parseFloat(document.getElementById('goalAmount').value),
+                deadline: document.getElementById('goalDeadline').value,
+                priority: document.getElementById('goalPriority').value,
+                description: document.getElementById('goalDescription').value,
+                currentAmount: 0,
+                createdDate: new Date().toISOString().split('T')[0],
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                const docRef = await db.collection('users')
+                    .doc(currentUser.uid)
+                    .collection('savingsGoals')
+                    .add(goal);
+
+                goal.id = docRef.id;
+                savingsGoals.push(goal);
+
+                document.getElementById('savingsForm').reset();
+                updateSavingsTab();
+                updateDashboard();
+
+                showNotification({
+                    title: '✅ Goal Created',
+                    message: `Savings goal "${goal.name}" created successfully!`,
+                    type: 'success'
+                });
+            } catch (error) {
+                console.error('Error adding savings goal:', error);
+                showNotification({
+                    title: '❌ Error',
+                    message: 'Failed to create savings goal.',
+                    type: 'danger'
+                });
+            }
+        }
+
+        document.getElementById('savingsContributionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await addSavingsContribution();
+        });
+
+        async function addSavingsContribution() {
+            const contribution = {
+                goalId: document.getElementById('contributionGoal').value,
+                amount: parseFloat(document.getElementById('contributionAmount').value),
+                date: document.getElementById('contributionDate').value,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                const docRef = await db.collection('users')
+                    .doc(currentUser.uid)
+                    .collection('savingsContributions')
+                    .add(contribution);
+
+                contribution.id = docRef.id;
+                savingsContributions.push(contribution);
+
+                // Update goal current amount
+                const goal = savingsGoals.find(g => g.id === contribution.goalId);
+                if (goal) {
+                    goal.currentAmount = (goal.currentAmount || 0) + contribution.amount;
+
+                    await db.collection('users')
+                        .doc(currentUser.uid)
+                        .collection('savingsGoals')
+                        .doc(goal.id)
+                        .update({
+                            currentAmount: goal.currentAmount
+                        });
+                }
+
+                document.getElementById('savingsContributionForm').reset();
+                setTodayDate();
+                updateSavingsTab();
+                updateDashboard();
+
+                showNotification({
+                    title: '✅ Contribution Added',
+                    message: `Added KSH ${contribution.amount.toFixed(2)} to ${goal.name}!`,
+                    type: 'success'
+                });
+            } catch (error) {
+                console.error('Error adding contribution:', error);
+                showNotification({
+                    title: '❌ Error',
+                    message: 'Failed to add contribution.',
+                    type: 'danger'
+                });
+            }
+        }
+
+        async function deleteSavingsGoal(id) {
+            if (confirm('Are you sure you want to delete this savings goal?')) {
+                try {
+                    await db.collection('users')
+                        .doc(currentUser.uid)
+                        .collection('savingsGoals')
+                        .doc(id)
+                        .delete();
+
+                    // Delete associated contributions
+                    const goalContributions = savingsContributions.filter(c => c.goalId === id);
+                    for (const contrib of goalContributions) {
+                        await db.collection('users')
+                            .doc(currentUser.uid)
+                            .collection('savingsContributions')
+                            .doc(contrib.id)
+                            .delete();
+                    }
+
+                    savingsGoals = savingsGoals.filter(g => g.id !== id);
+                    savingsContributions = savingsContributions.filter(c => c.goalId !== id);
+
+                    updateSavingsTab();
+                    updateDashboard();
+
+                    showNotification({
+                        title: '✅ Deleted',
+                        message: 'Savings goal deleted successfully.',
+                        type: 'success'
+                    });
+                } catch (error) {
+                    console.error('Error deleting savings goal:', error);
+                }
+            }
+        }
+
+        // ============================================
+        // UPDATE FUNCTIONS
+        // ============================================
+
+        function updateDashboard() {
+            const currentMonth = new Date().toISOString().slice(0, 7);
+            const monthTransactions = transactions.filter(t =>
+                t.date && t.date.startsWith(currentMonth)
+            );
+
+            const income = monthTransactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+            const expenses = monthTransactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+            const balance = income - expenses;
+            const savingsRate = income > 0 ? ((income - expenses) / income * 100) : 0;
+
+            document.getElementById('dashTotalIncome').textContent = `KSH ${income.toFixed(2)}`;
+            document.getElementById('dashTotalExpense').textContent = `KSH ${expenses.toFixed(2)}`;
+            document.getElementById('dashBalance').textContent = `KSH ${balance.toFixed(2)}`;
+            document.getElementById('dashSavingsRate').textContent = `${savingsRate.toFixed(1)}%`;
+
+            const balanceElement = document.getElementById('dashBalance');
+            balanceElement.className = balance >= 0 ? 'metric-value positive' : 'metric-value negative';
+
+            // Budget usage
+            const monthBudget = budgets
+                .filter(b => b.month === currentMonth && b.category === 'Overall')
+                .reduce((sum, b) => sum + (b.amount || 0), 0);
+
+            const budgetUsed = monthBudget > 0 ? (expenses / monthBudget * 100) : 0;
+            document.getElementById('dashBudgetUsed').textContent = `${budgetUsed.toFixed(1)}%`;
+
+            // Active goals
+            const activeGoals = savingsGoals.filter(g =>
+                (g.currentAmount || 0) < (g.targetAmount || 0)
+            ).length;
+            document.getElementById('dashActiveGoals').textContent = activeGoals;
+
+            // Recent transactions
+            updateRecentTransactions();
+        }
+
+        function updateRecentTransactions() {
+            const tbody = document.getElementById('dashRecentTransactions');
+            tbody.innerHTML = '';
+
+            const recent = [...transactions]
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .slice(0, 5);
+
+            recent.forEach(transaction => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${transaction.date || 'N/A'}</td>
+                    <td>${transaction.type === 'income' ? '💵' : '💸'} ${transaction.type}</td>
+                    <td>${transaction.category || 'N/A'}</td>
+                    <td>${transaction.description || 'N/A'}</td>
+                    <td style="color: ${transaction.type === 'income' ? '#28a745' : '#dc3545'}; font-weight: bold;">
+                        ${transaction.type === 'income' ? '+' : '-'}KSH ${(transaction.amount || 0).toFixed(2)}
+                    </td>
+                `;
+            });
+
+            if (recent.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #666;">No transactions yet</td></tr>';
+            }
+        }
+
+        function updateIncomeTab() {
+            const currentMonth = new Date().toISOString().slice(0, 7);
+            const incomeTransactions = transactions.filter(t =>
+                t.type === 'income' && t.date && t.date.startsWith(currentMonth)
+            );
+
+            const total = incomeTransactions.reduce((sum, t) => sum + (t.amount || 0), 0);
+            const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+            const dailyAvg = total / daysInMonth;
+
+            document.getElementById('incomeMonthTotal').textContent = `KSH ${total.toFixed(2)}`;
+            document.getElementById('incomeDailyAvg').textContent = `KSH ${dailyAvg.toFixed(2)}`;
+
+            // Top category
+            const categories = {};
+            incomeTransactions.forEach(t => {
+                categories[t.category] = (categories[t.category] || 0) + (t.amount || 0);
+            });
+            const topCategory = Object.keys(categories).reduce((a, b) =>
+                categories[a] > categories[b] ? a : b, '-'
+            );
+            document.getElementById('incomeTopCategory').textContent = topCategory;
+            document.getElementById('incomeSources').textContent = Object.keys(categories).length;
+
+            updateIncomeTable();
+        }
+
+        function updateIncomeTable() {
+            const tbody = document.getElementById('incomeList');
+            tbody.innerHTML = '';
+
+            const incomeTransactions = transactions
+                .filter(t => t.type === 'income')
+                .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            incomeTransactions.forEach(transaction => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${transaction.date || 'N/A'}</td>
+                    <td>${transaction.category || 'N/A'}</td>
+                    <td>${transaction.description || 'N/A'}</td>
+                    <td style="color: #28a745; font-weight: bold;">+KSH ${(transaction.amount || 0).toFixed(2)}</td>
+                    <td>${transaction.recurring || 'No'}</td>
+                    <td>
+                        <button class="delete-btn" onclick="deleteTransaction('${transaction.id}')">Delete</button>
+                    </td>
+                `;
+            });
+
+            if (incomeTransactions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #666;">No income transactions yet</td></tr>';
+            }
+        }
+
+        function updateExpenseTab() {
+            const currentMonth = new Date().toISOString().slice(0, 7);
+            const expenseTransactions = transactions.filter(t =>
+                t.type === 'expense' && t.date && t.date.startsWith(currentMonth)
+            );
+
+            const total = expenseTransactions.reduce((sum, t) => sum + (t.amount || 0), 0);
+            const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+            const dailyAvg = total / daysInMonth;
+
+            document.getElementById('expenseMonthTotal').textContent = `KSH ${total.toFixed(2)}`;
+            document.getElementById('expenseDailyAvg').textContent = `KSH ${dailyAvg.toFixed(2)}`;
+            document.getElementById('expenseCount').textContent = expenseTransactions.length;
+
+            // Top category
+            const categories = {};
+            expenseTransactions.forEach(t => {
+                categories[t.category] = (categories[t.category] || 0) + (t.amount || 0);
+            });
+            const topCategory = Object.keys(categories).reduce((a, b) =>
+                categories[a] > categories[b] ? a : b, '-'
+            );
+            document.getElementById('expenseTopCategory').textContent = topCategory;
+
+            updateExpenseTable();
+        }
+
+        function updateExpenseTable() {
+            const tbody = document.getElementById('expenseList');
+            tbody.innerHTML = '';
+
+            const expenseTransactions = transactions
+                .filter(t => t.type === 'expense')
+                .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            expenseTransactions.forEach(transaction => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${transaction.date || 'N/A'}</td>
+                    <td>${transaction.category || 'N/A'}</td>
+                    <td>${transaction.description || 'N/A'}</td>
+                    <td style="color: #dc3545; font-weight: bold;">-KSH ${(transaction.amount || 0).toFixed(2)}</td>
+                    <td>${transaction.paymentMethod || 'Cash'}</td>
+                    <td>
+                        <button class="delete-btn" onclick="deleteTransaction('${transaction.id}')">Delete</button>
+                    </td>
+                `;
+            });
+
+            if (expenseTransactions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #666;">No expense transactions yet</td></tr>';
+            }
+        }
+
+        function updateBudgetTab() {
+            const currentMonth = new Date().toISOString().slice(0, 7);
+            const monthBudgets = budgets.filter(b => b.month === currentMonth);
+
+            const categoryBudgets = monthBudgets.filter(b => b.category !== 'Overall');
+            const totalBudget = categoryBudgets.reduce((sum, b) => sum + (b.amount || 0), 0);
+
+            if (totalBudget > 0) {
+                const totalSpent = transactions
+                    .filter(t => t.type === 'expense' && t.date && t.date.startsWith(currentMonth))
+                    .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+                const percentage = (totalSpent / totalBudget * 100);
+                const remaining = totalBudget - totalSpent;
+
+                document.getElementById('totalMonthlyBudget').textContent = `KSH ${totalBudget.toFixed(2)}`;
+                document.getElementById('overallSpentText').textContent = `Spent: KSH ${totalSpent.toFixed(2)}`;
+                document.getElementById('overallRemainingText').textContent =
+                    `${remaining >= 0 ? 'Remaining' : 'Over'}: KSH ${Math.abs(remaining).toFixed(2)}`;
+                document.getElementById('overallPercentageText').textContent = `${percentage.toFixed(1)}% used`;
+
+                const progressFill = document.getElementById('overallProgressFill');
+                progressFill.style.width = `${Math.min(percentage, 100)}%`;
+                progressFill.className = `progress-fill ${percentage > 100 ? 'danger' : percentage > 80 ? 'warning' : ''}`;
+
+                document.getElementById('overallBudgetProgress').style.display = 'block';
+            } else {
+                document.getElementById('totalMonthlyBudget').textContent = 'Not Set';
+                document.getElementById('overallBudgetProgress').style.display = 'none';
+            }
+
+            const container = document.getElementById('activeBudgetsList');
+            container.innerHTML = '';
+
+            categoryBudgets.forEach(budget => {
+                const spent = transactions
+                    .filter(t =>
+                        t.type === 'expense' &&
+                        t.date && t.date.startsWith(budget.month) &&
+                        (budget.category === 'Overall' || t.category === budget.category)
+                    )
+                    .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+                const percentage = (spent / budget.amount * 100).toFixed(1);
+                const remaining = budget.amount - spent;
+
+                const div = document.createElement('div');
+                div.className = 'budget-progress';
+                div.innerHTML = `
+                    <div class="progress-header">
+                        <strong>${budget.category}</strong>
+                        <span>KSH ${spent.toFixed(2)} / KSH ${budget.amount.toFixed(2)}</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill ${percentage > 100 ? 'danger' : percentage > 80 ? 'warning' : ''}"
+                             style="width: ${Math.min(percentage, 100)}%"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 5px; font-size: 0.9em;">
+                        <span>${percentage}% used</span>
+                        <span>${remaining >= 0 ? 'Remaining' : 'Over'}: KSH ${Math.abs(remaining).toFixed(2)}</span>
+                    </div>
+                    <button class="delete-btn" style="margin-top: 10px;" onclick="deleteBudget('${budget.id}')">Remove</button>
+                `;
+                container.appendChild(div);
+            });
+
+            if (categoryBudgets.length === 0) {
+                container.innerHTML = '<p style="color: #666;">No category budgets set for this month</p>';
+            }
+        }
+
+        function updateBudgetAnalysis() {
+            const month = document.getElementById('analysisMonth').value;
+            const monthBudgets = budgets.filter(b => b.month === month);
+            const monthTransactions = transactions.filter(t => t.date && t.date.startsWith(month));
+
+            const tbody = document.getElementById('budgetAnalysisTable');
+            tbody.innerHTML = '';
+
+            const categories = new Set();
+            monthBudgets.forEach(b => categories.add(b.category));
+            monthTransactions.filter(t => t.type === 'expense').forEach(t => categories.add(t.category));
+
+            categories.forEach(category => {
+                if (category === 'Overall') return;
+
+                const budget = monthBudgets.find(b => b.category === category);
+                const actual = monthTransactions
+                    .filter(t => t.type === 'expense' && t.category === category)
+                    .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+                const budgetAmount = budget ? (budget.amount || 0) : 0;
+                const difference = budgetAmount - actual;
+                const status = budgetAmount === 0 ? 'No Budget' :
+                               difference >= 0 ? 'On Track' : 'Over Budget';
+
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${category}</td>
+                    <td>KSH ${budgetAmount.toFixed(2)}</td>
+                    <td>KSH ${actual.toFixed(2)}</td>
+                    <td style="color: ${difference >= 0 ? '#28a745' : '#dc3545'}">
+                        ${difference >= 0 ? '+' : ''}KSH ${difference.toFixed(2)}
+                    </td>
+                    <td style="color: ${status === 'On Track' ? '#28a745' : status === 'Over Budget' ? '#dc3545' : '#666'}">
+                        ${status}
+                    </td>
+                `;
+            });
+
+            if (categories.size === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #666;">No data for selected month</td></tr>';
+            }
+        }
+
+        function updateSavingsTab() {
+            const select = document.getElementById('contributionGoal');
+            select.innerHTML = '<option value="">Select a goal</option>';
+
+            savingsGoals.forEach(goal => {
+                const option = document.createElement('option');
+                option.value = goal.id;
+                option.textContent = goal.name;
+                select.appendChild(option);
+            });
+
+            const container = document.getElementById('savingsGoalsList');
+            container.innerHTML = '';
+
+            savingsGoals.forEach(goal => {
+                const progress = ((goal.currentAmount || 0) / (goal.targetAmount || 1) * 100).toFixed(1);
+                const remaining = (goal.targetAmount || 0) - (goal.currentAmount || 0);
+                const daysLeft = Math.ceil((new Date(goal.deadline) - new Date()) / (1000 * 60 * 60 * 24));
+
+                const div = document.createElement('div');
+                div.className = 'savings-goal-card';
+                div.innerHTML = `
+                    <h4>${goal.name} - ${goal.priority} Priority</h4>
+                    <p>${goal.description || 'No description'}</p>
+                    <div class="goal-progress">
+                        <span>KSH ${(goal.currentAmount || 0).toFixed(2)} / KSH ${(goal.targetAmount || 0).toFixed(2)}</span>
+                        <span>${progress}% Complete</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${Math.min(progress, 100)}%"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 0.9em;">
+                        <span>Remaining: KSH ${remaining.toFixed(2)}</span>
+                        <span>${daysLeft} days left</span>
+                    </div>
+                    <button class="delete-btn" style="margin-top: 10px;" onclick="deleteSavingsGoal('${goal.id}')">Delete Goal</button>
+                `;
+                container.appendChild(div);
+            });
+
+            if (savingsGoals.length === 0) {
+                container.innerHTML = '<p style="color: #666;">No savings goals set</p>';
+            }
+        }
+
+        function updateTrends() {
+            const months = parseInt(document.getElementById('trendPeriod').value);
+            const now = new Date();
+            const trendData = [];
+
+            for (let i = months - 1; i >= 0; i--) {
+                const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const monthStr = date.toISOString().slice(0, 7);
+
+                const monthTransactions = transactions.filter(t => t.date && t.date.startsWith(monthStr));
+                const income = monthTransactions
+                    .filter(t => t.type === 'income')
+                    .reduce((sum, t) => sum + (t.amount || 0), 0);
+                const expenses = monthTransactions
+                    .filter(t => t.type === 'expense')
+                    .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+                trendData.push({
+                    month: monthStr,
+                    income: income,
+                    expenses: expenses,
+                    savings: income - expenses
+                });
+            }
+
+            if (trendData.length >= 2) {
+                const current = trendData[trendData.length - 1];
+                const previous = trendData[trendData.length - 2];
+
+                const incomeTrend = previous.income > 0 ?
+                    ((current.income - previous.income) / previous.income * 100) : 0;
+                const expenseTrend = previous.expenses > 0 ?
+                    ((current.expenses - previous.expenses) / previous.expenses * 100) : 0;
+                const savingsTrend = Math.abs(previous.savings) > 0 ?
+                    ((current.savings - previous.savings) / Math.abs(previous.savings) * 100) : 0;
+
+                document.getElementById('incomeTrend').textContent =
+                    `${incomeTrend >= 0 ? '↑' : '↓'} ${Math.abs(incomeTrend).toFixed(1)}%`;
+                document.getElementById('expenseTrend').textContent =
+                    `${expenseTrend >= 0 ? '↑' : '↓'} ${Math.abs(expenseTrend).toFixed(1)}%`;
+                document.getElementById('savingsTrend').textContent =
+                    `${savingsTrend >= 0 ? '↑' : '↓'} ${Math.abs(savingsTrend).toFixed(1)}%`;
+            }
+        }
+
+        function generateReport() {
+            const type = document.getElementById('reportType').value;
+            const period = document.getElementById('reportPeriod').value;
+
+            const reportContent = document.getElementById('reportContent');
+            const periodTransactions = transactions.filter(t => t.date && t.date.startsWith(period));
+
+            const income = periodTransactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+            const expenses = periodTransactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+            reportContent.innerHTML = `
+                <h3>${type === 'summary' ? 'Monthly Summary Report' :
+                     type === 'detailed' ? 'Detailed Transaction Report' :
+                     type === 'yearly' ? 'Yearly Financial Report' :
+                     'Tax Report'}</h3>
+                <p><strong>Period:</strong> ${period}</p>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <strong>Total Income:</strong> KSH ${income.toFixed(2)}
+                    </div>
+                    <div class="summary-item">
+                        <strong>Total Expenses:</strong> KSH ${expenses.toFixed(2)}
+                    </div>
+                    <div class="summary-item">
+                        <strong>Net Savings:</strong> KSH ${(income - expenses).toFixed(2)}
+                    </div>
+                    <div class="summary-item">
+                        <strong>Transactions:</strong> ${periodTransactions.length}
+                    </div>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // NOTIFICATION FUNCTIONS
+        // ============================================
+
+        function checkBudgetAlert(category, amount, date) {
+            if (!notificationSettings.budgetAlertsEnabled) return;
+
+            const currentMonth = date.slice(0, 7);
+            const categoryBudget = budgets.find(b =>
+                b.month === currentMonth &&
+                (b.category === category || b.category === 'Overall')
+            );
+
+            if (!categoryBudget) return;
+
+            const monthExpenses = transactions
+                .filter(t =>
+                    t.type === 'expense' &&
+                    t.date && t.date.startsWith(currentMonth) &&
+                    (categoryBudget.category === 'Overall' || t.category === categoryBudget.category)
+                )
+                .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+            const percentage = (monthExpenses / categoryBudget.amount * 100);
+
+            if (percentage >= notificationSettings.budgetThreshold) {
+                showNotification({
+                    title: '⚠️ Budget Alert',
+                    message: `You've used ${percentage.toFixed(1)}% of your ${categoryBudget.category} budget!`,
+                    type: percentage >= 100 ? 'danger' : 'warning'
+                });
+            }
+        }
+
+        function checkLargeTransactionAlert(amount, category) {
+            if (!notificationSettings.transactionAlertsEnabled) return;
+
+            if (amount >= notificationSettings.transactionThreshold) {
+                showNotification({
+                    title: '💸 Large Transaction',
+                    message: `Large expense of KSH ${amount.toFixed(2)} for ${category} recorded.`,
+                    type: 'warning'
+                });
+            }
+        }
+
+        function checkBalanceAlert() {
+            if (!notificationSettings.balanceAlertsEnabled) return;
+
+            const totalIncome = transactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+            const totalExpenses = transactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+            const balance = totalIncome - totalExpenses;
+
+            if (balance < notificationSettings.balanceThreshold) {
+                showNotification({
+                    title: '💰 Low Balance Alert',
+                    message: `Your balance (KSH ${balance.toFixed(2)}) is below KSH ${notificationSettings.balanceThreshold}!`,
+                    type: 'danger'
+                });
+            }
+        }
+
+        function showNotification(notification) {
+            notification.id = Date.now();
+            notification.timestamp = new Date().toISOString();
+            notification.read = false;
+
+            notifications.unshift(notification);
+            if (notifications.length > 50) {
+                notifications = notifications.slice(0, 50);
+            }
+
+            // Show toast
+            const container = document.getElementById('notificationContainer');
+            const notifElement = document.createElement('div');
+            notifElement.className = `notification ${notification.type}`;
+            notifElement.innerHTML = `
+                <button class="notification-close" onclick="dismissNotification(this)">&times;</button>
+                <div class="notification-title">${notification.title}</div>
+                <div class="notification-body">${notification.message}</div>
+            `;
+
+            container.appendChild(notifElement);
+            updateNotificationBell();
+
+            setTimeout(() => {
+                if (notifElement.parentNode) {
+                    notifElement.style.opacity = '0';
+                    setTimeout(() => notifElement.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        function dismissNotification(button) {
+            const notif = button.closest('.notification');
+            notif.style.opacity = '0';
+            setTimeout(() => notif.remove(), 300);
+        }
+
+        function updateNotificationBell() {
+            const bell = document.getElementById('notificationBell');
+            const unreadCount = notifications.filter(n => !n.read).length;
+
+            if (unreadCount > 0) {
+                bell.classList.add('has-notifications');
+            } else {
+                bell.classList.remove('has-notifications');
+            }
+
+            updateNotificationPanel();
+        }
+
+        function toggleNotificationPanel() {
+            const panel = document.getElementById('notificationPanel');
+            panel.classList.toggle('active');
+
+            if (panel.classList.contains('active')) {
+                notifications.forEach(n => n.read = true);
+                updateNotificationBell();
+            }
+        }
+
+        function updateNotificationPanel() {
+            const list = document.getElementById('notificationList');
+
+            if (notifications.length === 0) {
+                list.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">No notifications yet</div>';
+                return;
+            }
+
+            list.innerHTML = notifications.slice(0, 20).map(notif => `
+                <div class="notification-item ${notif.read ? '' : 'unread'}">
+                    <div style="font-weight: bold; margin-bottom: 5px;">${notif.title}</div>
+                    <div style="color: #666; font-size: 14px;">${notif.message}</div>
+                    <div style="color: #999; font-size: 12px; margin-top: 5px;">${formatTime(notif.timestamp)}</div>
+                </div>
+            `).join('');
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000);
+
+            if (diff < 60) return 'Just now';
+            if (diff < 3600) return `${Math.floor(diff / 60)} minutes ago`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
+            return date.toLocaleDateString();
+        }
+
+        function openSettings() {
+            document.getElementById('settingsModal').classList.add('active');
+
+            document.getElementById('budgetAlertsEnabled').checked = notificationSettings.budgetAlertsEnabled;
+            document.getElementById('budgetThreshold').value = notificationSettings.budgetThreshold;
+            document.getElementById('balanceAlertsEnabled').checked = notificationSettings.balanceAlertsEnabled;
+            document.getElementById('balanceThreshold').value = notificationSettings.balanceThreshold;
+            document.getElementById('savingsAlertsEnabled').checked = notificationSettings.savingsAlertsEnabled;
+            document.getElementById('transactionAlertsEnabled').checked = notificationSettings.transactionAlertsEnabled;
+            document.getElementById('transactionThreshold').value = notificationSettings.transactionThreshold;
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+
+        async function saveSettings() {
+            notificationSettings = {
+                budgetAlertsEnabled: document.getElementById('budgetAlertsEnabled').checked,
+                budgetThreshold: parseInt(document.getElementById('budgetThreshold').value),
+                balanceAlertsEnabled: document.getElementById('balanceAlertsEnabled').checked,
+                balanceThreshold: parseFloat(document.getElementById('balanceThreshold').value),
+                savingsAlertsEnabled: document.getElementById('savingsAlertsEnabled').checked,
+                transactionAlertsEnabled: document.getElementById('transactionAlertsEnabled').checked,
+                transactionThreshold: parseFloat(document.getElementById('transactionThreshold').value)
+            };
+
+            try {
+                await db.collection('users')
+                    .doc(currentUser.uid)
+                    .collection('settings')
+                    .doc('notifications')
+                    .set(notificationSettings);
+
+                showNotification({
+                    title: '✅ Settings Saved',
+                    message: 'Your notification preferences have been updated.',
+                    type: 'success'
+                });
+
+                closeSettings();
+            } catch (error) {
+                console.error('Error saving settings:', error);
+            }
+        }
+
+        // ============================================
+        // TAB NAVIGATION
+        // ============================================
+
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // Update tab-specific data
+            switch(tabName) {
+                case 'dashboard':
+                    updateDashboard();
+                    break;
+                case 'income':
+                    updateIncomeTab();
+                    break;
+                case 'expense':
+                    updateExpenseTab();
+                    break;
+                case 'budget':
+                    updateBudgetTab();
+                    break;
+                case 'budgetVsActual':
+                    updateBudgetAnalysis();
+                    break;
+                case 'savings':
+                    updateSavingsTab();
+                    break;
+                case 'trends':
+                    updateTrends();
+                    break;
+                case 'admin':
+                    if (isAdmin) loadAdminData();
+                    break;
+            }
+        }
+
+        // ============================================
+        // ADMIN FUNCTIONS
+        // ============================================
+
+        async function loadAdminData() {
+            const adminContent = document.getElementById('adminContent');
+
+            try {
+                const usersSnapshot = await db.collection('users').get();
+                const users = [];
+
+                usersSnapshot.forEach(doc => {
+                    users.push({ id: doc.id, ...doc.data() });
+                });
+
+                adminContent.innerHTML = `
+                    <h3>Registered Users (${users.length})</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Joined</th>
+                                <th>Role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${users.map(u => `
+                                <tr>
+                                    <td>${u.name || 'N/A'}</td>
+                                    <td>${u.email || 'N/A'}</td>
+                                    <td>${u.createdAt ? new Date(u.createdAt.toDate()).toLocaleDateString() : 'N/A'}</td>
+                                    <td>
+                                        ${u.isAdmin ? '<span style="background: #ffc107; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">ADMIN</span>' : 'User'}
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top: 40px;">
+                        <h3>System Statistics</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px;">
+                                <strong>Total Users:</strong><br>${users.length}
+                            </div>
+                            <div style="background: #e8f5e9; padding: 15px; border-radius: 8px;">
+                                <strong>Admin Users:</strong><br>${users.filter(u => u.isAdmin).length}
+                            </div>
+                            <div style="background: #fff3e0; padding: 15px; border-radius: 8px;">
+                                <strong>Regular Users:</strong><br>${users.filter(u => !u.isAdmin).length}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Error loading admin data:', error);
+                adminContent.innerHTML = '<p style="color: #dc3545;">Error loading admin data.</p>';
+            }
+        }
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+
+        function filterTransactions() {
+            updateIncomeTable();
+            updateExpenseTable();
+        }
+
+        function populateFilterCategories() {
+            const incomeCategories = [...new Set(transactions
+                .filter(t => t.type === 'income')
+                .map(t => t.category))];
+
+            const expenseCategories = [...new Set(transactions
+                .filter(t => t.type === 'expense')
+                .map(t => t.category))];
+
+            const incomeFilter = document.getElementById('incomeFilterCategory');
+            incomeCategories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                incomeFilter.appendChild(option);
+            });
+
+            const expenseFilter = document.getElementById('expenseFilterCategory');
+            expenseCategories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                expenseFilter.appendChild(option);
+            });
+        }
+
+        function exportToCSV() {
+            let csv = 'Date,Type,Category,Description,Amount,Payment Method\n';
+
+            transactions.forEach(t => {
+                csv += `${t.date},${t.type},${t.category},"${t.description}",`;
+                csv += `${t.type === 'income' ? '' : '-'}${t.amount},`;
+                csv += `${t.paymentMethod || ''}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `financial_report_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        function exportToPDF() {
+            alert('PDF export feature would require a PDF library. You can print the report and save as PDF.');
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        // Close notification panel on outside click
+        document.addEventListener('click', (e) => {
+            const panel = document.getElementById('notificationPanel');
+            const bell = document.getElementById('notificationBell');
+
+            if (!panel.contains(e.target) && !bell.contains(e.target)) {
+                panel.classList.remove('active');
+            }
+        });
+
+        // ============================================
+        // PWA SERVICE WORKER REGISTRATION
+        // ============================================
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            });
+        }
+    </script>
+</body>
+</html>
