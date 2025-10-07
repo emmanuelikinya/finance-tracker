@@ -1,0 +1,19 @@
+/*
+  # Security Headers for Firebase Authentication
+  # These headers fix CORS and Cross-Origin-Opener-Policy issues with Google Sign-in
+
+  # Allow cross-origin for Firebase/Google OAuth
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS
+  Access-Control-Allow-Headers: Content-Type, Authorization
+
+  # Remove Cross-Origin-Opener-Policy to allow popup communication
+  Cross-Origin-Opener-Policy: unsafe-none
+
+  # Security headers (keep these)
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # Content Security Policy - allow Firebase domains
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://*.firebaseio.com https://*.googleapis.com https://identitytoolkit.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://identitytoolkit.googleapis.com wss://*.firebaseio.com; img-src 'self' data: https:; frame-src https://accounts.google.com https://*.firebaseapp.com;

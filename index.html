@@ -1765,23 +1765,42 @@
                 const result = await auth.signInWithPopup(provider);
                 console.log('Sign-in successful:', result.user.email);
 
-                const userDoc = await db.collection('users').doc(result.user.uid).get();
+                // Try to create/get user document with retry logic for offline errors
+                try {
+                    const userDoc = await db.collection('users').doc(result.user.uid).get();
 
-                if (!userDoc.exists) {
-                    await db.collection('users').doc(result.user.uid).set({
-                        name: result.user.displayName,
-                        email: result.user.email,
-                        photoURL: result.user.photoURL,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        isAdmin: ADMIN_EMAILS.includes(result.user.email.toLowerCase())
-                    });
+                    if (!userDoc.exists) {
+                        await db.collection('users').doc(result.user.uid).set({
+                            name: result.user.displayName,
+                            email: result.user.email,
+                            photoURL: result.user.photoURL,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            isAdmin: ADMIN_EMAILS.includes(result.user.email.toLowerCase())
+                        });
+                    }
+                } catch (firestoreError) {
+                    console.error('Firestore error:', firestoreError);
+                    // If Firestore fails but auth succeeded, still allow sign-in
+                    // The user doc will be created on next successful connection
+                    if (firestoreError.code === 'unavailable' || firestoreError.message.includes('offline')) {
+                        console.warn('Firestore offline - user will be created on next connection');
+                        showError('Warning: Database connection issue. Some features may not work correctly. Please check your internet connection and refresh the page.');
+                    } else {
+                        throw firestoreError;
+                    }
                 }
             } catch (error) {
                 console.error('Google Sign-in error:', error);
                 console.error('Error code:', error.code);
                 console.error('Error message:', error.message);
                 hideLoading();
-                showError(getErrorMessage(error.code));
+
+                // Provide specific error message for Firestore connectivity issues
+                if (error.code === 'unavailable' || error.message.includes('offline') || error.message.includes('Firestore')) {
+                    showError('Cannot connect to database. Please check:\n1. Your internet connection\n2. Firewall/antivirus isn\'t blocking Firebase\n3. Try refreshing the page\n4. Wait a few minutes if you just deployed');
+                } else {
+                    showError(getErrorMessage(error.code));
+                }
             }
         });
 
@@ -1863,11 +1882,13 @@
                 'auth/wrong-password': 'Incorrect password.',
                 'auth/popup-closed-by-user': 'Sign-in popup was closed.',
                 'auth/cancelled-popup-request': 'Only one popup request is allowed at a time.',
-                'auth/unauthorized-domain': 'This domain is not authorized. Add fina-tracker.netlify.app to Firebase authorized domains.',
+                'auth/unauthorized-domain': 'This domain is not authorized. Add your domain to Firebase authorized domains in the Firebase Console.',
                 'auth/popup-blocked': 'Pop-up was blocked by your browser. Please allow pop-ups for this site.',
                 'auth/account-exists-with-different-credential': 'An account already exists with the same email but different sign-in credentials.',
                 'auth/invalid-credential': 'The credential is invalid or has expired.',
-                'auth/network-request-failed': 'Network error. Please check your internet connection.'
+                'auth/network-request-failed': 'Network error. Please check your internet connection.',
+                'auth/unavailable': 'Authentication service is temporarily unavailable. This may be due to:\n1. Domain authorization still propagating (wait 5-10 minutes)\n2. Firestore security rules blocking access\n3. Network connectivity issues\n\nPlease wait a few minutes and try again.',
+                'auth/internal-error': 'An internal authentication error occurred. Please check your Firebase configuration and try again.'
             };
             return errors[code] || `Error: ${code}. Please try again or contact support.`;
         }
